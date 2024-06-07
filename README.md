@@ -23,7 +23,7 @@
 
 ### 전자결재
 
-![image](https://github.com/hstar0124/group-whale/assets/57317290/9f469465-6453-425c-8115-95d1a2c83bf8)
+![image](https://github.com/hstar0124/group-whale/assets/57317290/a261ceb5-5b2f-4e38-bcd4-74c54fd78296)
 
 ### 게시판
 
