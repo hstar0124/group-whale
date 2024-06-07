@@ -5,6 +5,11 @@
 
 # 기획의도
 
+국내 550개 기업을 대상으로 진행된 설문조사에 그룹웨어를 사용하는 업체는 91%
+다양한 기업용 메신저나 협업 툴이 발표되고 있지만 그룹웨어가 여전히 가장 보편적인 업무처리 솔루션
+메일/ 전자결재가 그룹웨어를 도입하는 가장 큰 이유.
+올바른 메일/전자결재는 빠른 업무처리와 향상된 협업 효율성을 증대시켜 주기 때문!
+
 - 언택트(Untact) 근무 가능
 - 다양한 결재환경에 맞춘 전자결재
 - 12가지 상세 기능
@@ -15,6 +20,14 @@
 # 주요기능, 프로세스
 
 ![image](https://github.com/hstar0124/group-whale/assets/57317290/712b711c-9912-4394-9ff9-e041b1ea8cc4)
+
+### 전자결재
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/9f469465-6453-425c-8115-95d1a2c83bf8)
+
+### 게시판
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/aa47ba50-bed5-4d91-ad31-6eebdc5487a0)
 
 # 담당기능
 - 로그인/회원가입
@@ -31,14 +44,6 @@
 현재 상태가 눌려있지 않은 상태라면 좋아요 추가 기능을 적용시킵니다.
 
 ![image](https://github.com/hstar0124/group-whale/assets/57317290/3aa379f9-3694-4b2b-a28a-a384be7cc26f)
-
-### 전자결재
-
-![image](https://github.com/hstar0124/group-whale/assets/57317290/9f469465-6453-425c-8115-95d1a2c83bf8)
-
-### 게시판
-
-![image](https://github.com/hstar0124/group-whale/assets/57317290/aa47ba50-bed5-4d91-ad31-6eebdc5487a0)
 
 # 개발 스텍
 
