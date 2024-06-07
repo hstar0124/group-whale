@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AllBoardReply">
+	
+	<resultMap type="AllBoardReply" id="AllBoardReplyResultSet">
+		<id property="aBoardNo" column="ABOARD_NO"/>
+		<result property="replyNo" column="REPLY_NO"/>
+		<result property="rWriter" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+	    <result property="replyEmpPhoto" column="CHANGE_NAME"/>
+	    <result property="rContent" column="RCONTENT"/>
+	    <result property="rEnrollDate" column="RENROLL_DATE"/>
+	    <result property="rModifyDate" column="RMODIFY_DATE"/>
+	    <result property="rStatus" column="RSTATUS"/>
+	    
+	</resultMap>
+	
+	<!-- 댓글 조회 -->
+	<select id="AllBoardReadReply" resultMap="AllBoardReplyResultSet">
+		SELECT R.ABOARD_NO, R.REPLY_NO, R.EMP_NO, E.EMP_NAME, AB.CHANGE_NAME, R.RCONTENT, R.RENROLL_DATE, R.RMODIFY_DATE, R.RSTATUS
+		FROM BOARD_REPLY R
+        LEFT JOIN ATTACHMENT_BOARD AB ON (R.EMP_NO = AB.FOREIGN_NO)
+		JOIN EMPLOYEE E ON (R.EMP_NO = E.EMP_NO)
+		WHERE ABOARD_NO = #{aBoardNo}
+		ORDER BY RENROLL_DATE DESC
+	</select>
+	
+	<!-- 댓글 작성 -->
+	<insert id="AllBoardInsertReply" parameterType="AllBoardReply">
+	INSERT INTO BOARD_REPLY
+	VALUES (#{aBoardNo}, SEQ_REPLY_NO.NEXTVAL, #{rWriter}, #{rContent}, SYSDATE, SYSDATE, 'Y')
+	</insert>
+
+	<!-- 댓글 수정 -->
+	<update id="AllBoardUpdateReply" parameterType="AllBoardReply">
+		UPDATE BOARD_REPLY SET
+		RCONTENT = #{rContent}, RMODIFY_DATE = SYSDATE
+		WHERE REPLY_NO = #{replyNo}
+	</update>
+
+	<!-- 댓글 삭제 -->
+	<delete id="AllBoardDeleteReply" parameterType="String">
+		DELETE FROM BOARD_REPLY
+		WHERE REPLY_NO = #{replyNo}
+	</delete>
+	
+</mapper>

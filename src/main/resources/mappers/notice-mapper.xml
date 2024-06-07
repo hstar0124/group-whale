@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="notice">
+
+	<resultMap type="notice" id="noticeResultSet">
+		<id property="nBoardNo" column="NBOARD_NO"/>
+		<result property="nWriter" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="empPhoto" column="CHANGE_NAME"/>
+	    <result property="nTitle" column="NTITLE"/>
+	    <result property="nEnrollDate" column="NENROLL_DATE"/>
+	    <result property="nModifyDate" column="NMODIFY_DATE"/>
+	    <result property="nContent" column="NCONTENT"/>
+	    <result property="nCount" column="NCOUNT"/>
+	    <result property="pin" column="PIN"/>
+	    <result property="nStatus" column="NSTATUS"/>
+	</resultMap>
+
+	<select id="selectListNoticeMain" resultMap="noticeResultSet" parameterType="notice">
+	 	<![CDATA[
+	 	SELECT NBOARD_NO, EMP_NO, EMP_NAME, NTITLE, NENROLL_DATE
+	    FROM (SELECT N.NBOARD_NO, E.EMP_NO, E.EMP_NAME, N.NTITLE, N.NENROLL_DATE
+        FROM NOTICE N
+        JOIN EMPLOYEE E ON (N.EMP_NO = E.EMP_NO)
+        WHERE NSTATUS = 'Y'
+        ORDER BY N.NENROLL_DATE DESC)
+        WHERE ROWNUM <=5
+        ]]>
+	</select>
+
+	<select id="selectListNoticePagingPin" resultMap="noticeResultSet" parameterType="notice">
+	<![CDATA[
+		SELECT N.NBOARD_NO, N.EMP_NO, E.EMP_NAME, N.NTITLE, N.NENROLL_DATE, N.NMODIFY_DATE, N.NCONTENT, N.NCOUNT, N.PIN, N.NSTATUS 
+	    FROM NOTICE N
+	    JOIN EMPLOYEE E ON (N.EMP_NO = E.EMP_NO)
+	    WHERE N.NSTATUS = 'Y' AND N.PIN = 'Y' AND ROWNUM <= 3
+	    ORDER BY N.NENROLL_DATE DESC
+	    ]]>
+	</select>
+
+
+	<select id="selectListNoticePaging" resultMap="noticeResultSet" parameterType="notice">
+		<![CDATA[
+		SELECT N.NBOARD_NO, N.EMP_NO, E.EMP_NAME, N.NTITLE, N.NENROLL_DATE, N.NMODIFY_DATE, N.NCONTENT, N.NCOUNT, N.PIN, N.NSTATUS 
+	    FROM NOTICE N
+	    JOIN EMPLOYEE E ON (N.EMP_NO = E.EMP_NO) 
+	    WHERE N.NSTATUS = 'Y'
+	    ORDER BY N.NENROLL_DATE DESC
+	    ]]>
+	</select>
+	
+	<!-- 공지사항 카운트 -->
+	<select id="selectListNoticeCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM NOTICE
+		WHERE NSTATUS = 'Y'
+	</select>
+
+	<select id="selectNoticeList" resultMap="noticeResultSet">
+		SELECT *
+		FROM NOTICE N
+		JOIN EMPLOYEE E ON(N.EMP_NO = E.EMP_NO)
+		WHERE N.NSTATUS='Y' AND N.EMP_NO='admin'
+		ORDER BY NBOARD_NO DESC
+	</select>
+	
+	<insert id="noticeInsertForm" parameterType="notice" useGeneratedKeys="true" keyProperty="nBoardNo">
+		<selectKey keyProperty="nBoardNo" resultType="String" order="BEFORE">
+			SELECT SEQ_NBOARD_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO NOTICE (NBOARD_NO, EMP_NO, NTITLE, NENROLL_DATE, NMODIFY_DATE, NCONTENT, NCOUNT, PIN, NSTATUS) 
+		VALUES (SEQ_NBOARD_NO.NEXTVAL, 'admin', #{nTitle}, SYSDATE, SYSDATE, #{nContent}, 0, #{pin}, 'Y')
+	</insert>
+	
+	<select id="noticeSelectOne" resultMap="noticeResultSet">
+		SELECT N.NBOARD_NO, N.EMP_NO, E.EMP_NAME, N.NTITLE, N.NENROLL_DATE, N.NMODIFY_DATE, N.NCONTENT, N.NCOUNT, N.PIN, N.NSTATUS, AB.CHANGE_NAME 
+		FROM NOTICE N
+		JOIN EMPLOYEE E ON (N.EMP_NO = E.EMP_NO)
+		LEFT JOIN ATTACHMENT_BOARD AB ON (N.EMP_NO = AB.FOREIGN_NO)
+		WHERE NBOARD_NO=#{nBoardNo}
+	</select>
+	
+	<update id="noticeUpdate" parameterType="notice">
+	UPDATE NOTICE
+	SET NTITLE = #{nTitle},
+		NCONTENT = #{nContent},
+		PIN = #{pin}
+	WHERE NBOARD_NO = #{nBoardNo}
+	</update>
+	
+	<update id="noticeDelete" parameterType="String">
+	UPDATE NOTICE
+	SET NSTATUS='N'
+	WHERE NBOARD_NO = #{nBoardNo}
+	</update>
+	
+	<!-- 공지사항 조회수 -->
+    <update id="nCount" parameterType="String">
+    	UPDATE NOTICE SET
+    	NCOUNT = NCOUNT+1
+    	WHERE NBOARD_NO = #{nBoardNo}
+    </update>
+    
+    
+	<resultMap type="attachment" id="attachmentResultSet">
+		<id column="ATTACHMENT_NO" property="attachmentNo"/>
+		<result column="FOREIGN_NO" property="foreignNo"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="ATT_STATUS" property="attStatus"/>
+	</resultMap>
+    
+    <insert id="insertNoticeAttachment" parameterType="attachment">
+		<!-- <selectKey keyProperty="foreignNo" order="BEFORE" resultType="String">
+			SELECT SEQ_ATTACHMENT_BOARD.NEXTVAL FROM DUAL
+		</selectKey> -->
+		INSERT INTO ATTACHMENT_BOARD
+		VALUES (SEQ_ATTACHMENT_BOARD.NEXTVAL, 'admin', #{originName}, #{changeName}, SYSDATE, 'Y')
+	</insert>
+	
+	<delete id="deleteNoticeAttachment" parameterType="java.lang.String">
+		DELETE FROM ATTACHMENT_BOARD
+		WHERE CHANGE_NAME = #{ originPicture }
+	</delete>
+</mapper>

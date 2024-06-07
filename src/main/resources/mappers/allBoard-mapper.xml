@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="AllBoard">
+
+	<resultMap type="AllBoard" id="AllBoardResultSet">
+		<id property="aBoardNo" column="ABOARD_NO"/>
+		<result property="aWriter" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="empPhoto" column="CHANGE_NAME"/>
+	    <result property="aTitle" column="ATITLE"/>
+	    <result property="aEnrollDate" column="AENROLL_DATE"/>
+	    <result property="aModifyDate" column="AMODIFY_DATE"/>
+	    <result property="aContent" column="ACONTENT"/>
+	    <result property="aCount" column="ACOUNT"/>
+	    <result property="aStatus" column="ASTATUS"/>
+	</resultMap>
+	
+	<resultMap type="AllBoardReply" id="AllBoardReplyResultSet">
+		<id property="aBoardNo" column="ABOARD_NO"/>
+		<result property="replyNo" column="REPLY_NO"/>
+		<result property="rWriter" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+	    <result property="rContent" column="RCONTENT"/>
+	    <result property="rEnrollDate" column="RENROLL_DATE"/>
+	    <result property="rModifyDate" column="RMODIFY_DATE"/>
+	    <result property="rStatus" column="RSTATUS"/>
+	</resultMap>
+	
+	<resultMap type="AllBoard" id="AllBoardResultSet2">
+		<id property="aBoardNo" column="ABOARD_NO"/>
+		<result property="aWriter" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+	    <result property="aTitle" column="ATITLE"/>
+	    <result property="aEnrollDate" column="AENROLL_DATE"/>
+	    <result property="aModifyDate" column="AMODIFY_DATE"/>
+	    <result property="aContent" column="ACONTENT"/>
+	    <result property="aCount" column="ACOUNT"/>
+	    <result property="aStatus" column="ASTATUS"/>
+	    <collection property="replyList" javaType="java.util.ArrayList" resultMap="replyResultSet"/>
+	</resultMap>
+
+	<resultMap type="Attachment" id="attachmentResultSet">
+		<id column="ATTACHMENT_NO" property="attachmentNo"/>
+		<result column="FOREIGN_NO" property="foreignNo"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="ATT_STATUS" property="attStatus"/>
+		<result column="FILE_PATH" property="filePath"/>
+	</resultMap>
+
+	<!-- 전사게시판 작성 -->
+	<insert id="insertAllBoardForm" parameterType="AllBoard">
+		INSERT INTO ALLBOARD (ABOARD_NO, EMP_NO, ATITLE, AENROLL_DATE, AMODIFY_DATE, ACONTENT, ACOUNT, ASTATUS)
+		VALUES (SEQ_ABOARD_NO.NEXTVAL, #{aWriter}, #{aTitle}, SYSDATE, SYSDATE, #{aContent}, 0, 'Y')
+	</insert>
+	
+	<insert id="insertAttachment" parameterType="Attachment">
+		INSERT INTO ATTACHMENT_BOARD(ATTACHMENT_NO, FOREIGN_NO, ORIGIN_NAME, CHANGE_NAME, ENROLL_DATE, ATT_STATUS,FILE_PATH) 
+		VALUES(SEQ_ATTACHMENT_BOARD.NEXTVAL, SEQ_ABOARD_NO.CURRVAL, #{originName}, #{changeName}, SYSDATE, 'Y', #{filePath})
+	</insert>
+	
+	<!-- 최근 게시물의 갯수 -->
+	<select id="getAllBoardListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM ALLBOARD
+		WHERE AENROLL_DATE > TO_CHAR(SYSDATE-1, 'YYYYMMDD')
+		AND ASTATUS = 'Y'
+	</select>
+	
+	<!-- 전사게시판 목록 조회 -->
+	<select id="selectListAllBoardPaging" resultMap="AllBoardResultSet">
+		SELECT A.ABOARD_NO, A.EMP_NO, E.EMP_NAME, A.ATITLE, A.AENROLL_DATE, A.ACONTENT, A.ACOUNT, A.ASTATUS
+		FROM ALLBOARD A 
+		JOIN EMPLOYEE E ON (A.EMP_NO = E.EMP_NO) 
+		WHERE A.ASTATUS = 'Y'
+		AND 1=1
+		<include refid="search"></include>
+		ORDER BY A.AENROLL_DATE DESC
+	</select>
+	
+	<!-- 전사게시판 카운트 -->
+	<select id="selectListAllBoardCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM ALLBOARD
+		WHERE ASTATUS = 'Y' 
+		AND 1=1
+		<include refid="search"></include>	
+		AND ABOARD_NO > 0
+	</select>
+	
+	<!-- 검색 동적 쿼리 -->
+	<sql id="search">
+		<if test="searchType != null">
+			<if test="searchType == 't'.toString()">AND ATITLE LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'c'.toString()">AND ACONTENT LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'w'.toString()">AND AWRITER LIKE '%' || #{keyword} || '%'</if>
+			<if test="searchType == 'tc'.toString()">AND (ATITLE LIKE '%' || #{keyword} || '%') or (ACONTENT LIKE '%' || #{keyword} || '%')</if>
+		</if>
+	</sql>
+	
+	<!-- 전사게시판 조회 -->
+	<select id="selectOneAllBoard" resultMap="AllBoardResultSet">
+		SELECT A.ABOARD_NO, A.EMP_NO, E.EMP_NAME, A.ATITLE, A.AENROLL_DATE, A.ACONTENT, A.ACOUNT, A.ASTATUS, AB.CHANGE_NAME
+		FROM ALLBOARD A
+		JOIN EMPLOYEE E ON (A.EMP_NO = E.EMP_NO)
+		LEFT JOIN ATTACHMENT_BOARD AB ON (A.EMP_NO = AB.FOREIGN_NO)
+		WHERE ABOARD_NO = #{aBoardNo}
+	</select>
+	
+	<!-- 전사게시판 조회(파일첨부) -->
+	<select id="selectOneAttachment" resultMap="attachmentResultSet">
+		SELECT ATTACHMENT_NO,FOREIGN_NO,ORIGIN_NAME,CHANGE_NAME,ENROLL_DATE,ATT_STATUS,FILE_PATH
+		FROM ATTACHMENT_BOARD AB
+		JOIN ALLBOARD A ON( A.ABOARD_NO = AB.FOREIGN_NO)
+		WHERE A.ABOARD_NO = #{aBoardNo}
+	</select>
+	
+	<!-- 전사게시판 조회(파일첨부 다운로드) -->
+	<select id="selectOneAttachmentDown" resultMap="attachmentResultSet">
+		SELECT ATTACHMENT_NO, FOREIGN_NO, ORIGIN_NAME, CHANGE_NAME, ENROLL_DATE, ATT_STATUS, FILE_PATH
+		FROM ATTACHMENT_BOARD 
+		WHERE ATTACHMENT_NO = #{attachmentNo}
+	</select>
+	
+	<!-- 전사게시판 수정 -->
+	<update id="updateAllBoard" parameterType="AllBoard">
+		UPDATE ALLBOARD
+		SET ATITLE = #{aTitle},
+			ACONTENT = #{aContent}
+		WHERE ABOARD_NO = #{aBoardNo}
+	</update>
+	
+	<!-- 전사게시판 삭제 -->
+	<update id="deleteAllBoard" parameterType="String">
+		UPDATE ALLBOARD
+		SET ASTATUS='N'
+		WHERE ABOARD_NO = #{aBoardNo}
+	</update>
+	
+	<!-- 전사 게시판 조회수 -->
+    <update id="aCount" parameterType="String">
+    	UPDATE ALLBOARD SET
+    	ACOUNT = ACOUNT+1
+    	WHERE ABOARD_NO = #{aBoardNo}
+    </update>
+    
+  <!--   댓글 조회      -->
+    <select id="selectBoardOne2" parameterType="_int" resultMap="AllBoardResultSet2">
+		SELECT 
+		       A.ABOARD_NO
+		     , A.EMP_NO
+		     , A.ATITLE
+		     , A.AENROLL_DATE
+		     , A.AMODIFY_DATE
+		     , A.ACONTENT
+		     , A.ACOUNT
+		     , A.ASTATUS
+		     , E.EMP_NAME
+		     , R.ABOARD_NO
+		     , R.REPLY_NO
+		     , R.EMP_NO
+		     , R.RCONTENT
+		     , R.RENROLL_DATE REPLY_RENROLL_DATE
+		     , R.RMODIFY_DATE REPLY_RMODIFY_DATE
+             , R.RSTATUS
+		FROM ALLBOARD A
+		JOIN EMPLOYEE E ON(A.EMP_NO = E.EMP_NO)
+		LEFT JOIN (SELECT 
+		                  R2.REPLY_NO
+		                , R2.RCONTENT
+		                , R2.ABOARD_NO
+		                , R2.EMP_NO
+		                , R2.RENROLL_DATE
+		                , R2.RMODIFY_DATE
+		                , R2.RSTATUS
+		                , E2.EMP_NAME
+		           FROM EMPLOYEE E2
+		           JOIN BOARD_REPLY R2 ON(R2.EMP_NO = E2.EMP_NO)
+		           WHERE R2.RSTATUS = 'Y') R ON(R.ABOARD_NO = A.ABOARD_NO)
+		WHERE A.ABOARD_NO = #{aboardNo}
+		AND R.RSTATUS = 'Y'
+		ORDER BY REPLY_NO DESC
+	</select>
+    
+    
+    
+    
+	
+</mapper>

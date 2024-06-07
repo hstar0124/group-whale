@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Feed">
+
+	<insert id="insertFeed" parameterType="FeedBoard">
+		<selectKey keyProperty="fboardNo" order="BEFORE"
+			resultType="String">
+			SELECT SEQ_FBOARD_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO FEED_BOARD
+		VALUES (#{ fboardNo }, #{ empNo }, SYSDATE,
+		SYSDATE, #{ feedContent }, '0', 'Y')
+	</insert>
+
+	<insert id="insertFeedAttachment" parameterType="FeedAttachment">
+		INSERT INTO
+		ATTACHMENT_FEED
+		VALUES (SEQ_ATTACHMENT_FEED.NEXTVAL, #{foreignNo},
+		#{originName}, #{changeName}, SYSDATE, 'Y')
+	</insert>
+
+	<select id="selectListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM
+		ATTACHMENT_FEED
+		WHERE ATT_STATUS = 'Y'
+	</select>
+
+	<select id="selectFeedList" resultMap="resultFeedListMap">
+		SELECT F.FBOARD_NO
+			, F.EMP_NO "WRITER_EMP_NO"
+			, WE.EMP_NAME "WRITER_EMP_NAME"
+			, WP.POSITION_NAME "WRITER_POSITION_NAME"
+			, AB.CHANGE_NAME "WRITER_PHOTO"
+			, F.FENROLL_DATE
+			, F.FMODIFY_DATE
+			, F.FCONTENT
+			, F.FCOUNT
+			, F.FSTATUS
+			, A.ATTACHMENT_NO
+			, A.FOREIGN_NO
+			, A.ORIGIN_NAME
+			, A.CHANGE_NAME
+			, A.ENROLL_DATE
+			, A.ATT_STATUS
+			, R.FREPLY_NO
+			, R.FBOARD_NO "REPLY_FBOARD"
+			, R.EMP_NO "REPLY_EMP_NO"
+			, RE.EMP_NAME "REPLY_EMP_NAME"
+			, RP.POSITION_NAME "REPLY_POSITION_NAME"
+			, RAB.CHANGE_NAME "REPLY_EMP_PHOTO"
+			, R.RCONTENT
+			, R.RENROLL_DATE
+			, R.RMODIFY_DATE
+			, R.RSTATUS
+	FROM FEED_BOARD F
+	LEFT JOIN EMPLOYEE WE ON (F.EMP_NO = WE.EMP_NO)
+	LEFT JOIN POSITION WP ON (WE.POSITION_NO = WP.POSITION_NO)
+	LEFT JOIN ATTACHMENT_BOARD AB ON (WE.EMP_NO = AB.FOREIGN_NO)
+	LEFT JOIN ATTACHMENT_FEED A ON (F.FBOARD_NO = A.FOREIGN_NO)
+	LEFT JOIN FEED_BOARD_REPLY R ON (F.FBOARD_NO = R.FBOARD_NO)
+	LEFT JOIN EMPLOYEE RE ON (R.EMP_NO = RE.EMP_NO)
+	LEFT JOIN POSITION RP ON (RE.POSITION_NO = RP.POSITION_NO)
+	LEFT JOIN ATTACHMENT_BOARD RAB ON (R.EMP_NO = RAB.FOREIGN_NO)
+	ORDER BY FENROLL_DATE DESC, RMODIFY_DATE DESC
+	</select>
+
+	<resultMap type="FeedBoard" id="resultFeedListMap">
+		<id property="fboardNo" column="FBOARD_NO" />
+		<result property="empNo" column="WRITER_EMP_NO" />
+		<result property="empName" column="WRITER_EMP_NAME" />
+		<result property="positioName" column="WRITER_POSITION_NAME" />
+		<result property="photo" column="WRITER_PHOTO" />
+		<result property="feedEnrollDate" column="FENROLL_DATE" />
+		<result property="feedModifyDate" column="FMODIFY_DATE" />
+		<result property="feedContent" column="FCONTENT" />
+		<result property="feedCount" column="FCOUNT" />
+		<result property="feedStatus" column="FSTATUS" />
+		<collection property="feedReplyList"
+			javaType="java.util.List" resultMap="feedReplyResultMap" />
+		<collection property="feedAttachmentList"
+			javaType="java.util.List" resultMap="feedAttachmentResultMap" />
+	</resultMap>
+
+	<resultMap type="FeedReply" id="feedReplyResultMap">
+		<id property="feedReplyNo" column="FREPLY_NO" />
+		<id property="replyFboard" column="REPLY_FBOARD" />
+		<id property="replyEmpNo" column="REPLY_EMP_NO" />
+		<id property="replyEmpName" column="REPLY_EMP_NAME" />
+		<id property="replyEmpPhoto" column="REPLY_EMP_PHOTO" />
+		<id property="replyPositionName" column="REPLY_EMP_POSITION_NAME" />
+		<result property="replyContent" column="RCONTENT" />
+		<result property="replyEnrollDate" column="RENROLL_DATE" />
+		<result property="replyModifyDate" column="RMODIFY_DATE" />
+		<result property="replyStatus" column="RSTATUS" />
+	</resultMap>
+
+	<resultMap type="FeedAttachment" id="feedAttachmentResultMap">
+		<id property="attachmentNo" column="ATTACHMENT_NO" />
+		<result property="foreignNo" column="FOREIGN_NO" />
+		<result property="originName" column="ORIGIN_NAME" />
+		<result property="changeName" column="CHANGE_NAME" />
+		<result property="enrollDate" column="ENROLL_DATE" />
+		<result property="attStatus" column="ATT_STATUS" />
+	</resultMap>
+
+
+	<insert id="insertReply" parameterType="FeedReply">
+		<selectKey keyProperty="feedReplyNo" order="BEFORE"
+			resultType="String">
+			SELECT SEQ_FREPLY_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO FEED_BOARD_REPLY
+		VALUES (#{ feedReplyNo }, #{ replyFboard }, #{ replyEmpNo }, #{ replyContent
+		}, SYSDATE, SYSDATE, 'Y')
+	</insert>
+
+	<delete id="deleteReply" parameterType="java.lang.String">
+		DELETE FROM FEED_BOARD_REPLY
+		WHERE FBOARD_NO = #{ feedNo }
+	</delete>
+
+	<delete id="deleteFeed" parameterType="java.lang.String">
+		DELETE FROM FEED_BOARD
+		WHERE FBOARD_NO = #{ feedNo }
+	</delete>
+
+	<delete id="deleteFeedWithHeart" parameterType="java.lang.String">
+		DELETE FROM FEED_BOARD_HEART
+		WHERE FBOARD_NO = #{ feedNo }
+	</delete>
+
+	<select id="selectFeedAttachment"
+		resultMap="feedAttachmentResultMap">
+		SELECT ATTACHMENT_NO
+		, FOREIGN_NO
+		, ORIGIN_NAME
+		, CHANGE_NAME
+		, ENROLL_DATE
+		, ATT_STATUS
+		FROM ATTACHMENT_FEED
+		WHERE FOREIGN_NO = #{ feedNo }
+	</select>
+
+	<delete id="deleteReplyOne" parameterType="java.lang.String">
+		DELETE FROM FEED_BOARD_REPLY
+		WHERE FREPLY_NO = #{ replyNo }
+	</delete>
+
+	<resultMap type="FeedHeart" id="heartListResultMap"> 
+		<result property="feedBoardNo" column="FBOARD_NO" />
+		<result property="heartEmpNo" column="EMP_NO" />
+	</resultMap>
+	
+	<select id="selectHeartList" resultMap="heartListResultMap">
+		SELECT FBOARD_NO
+		, EMP_NO 
+		FROM FEED_BOARD_HEART
+	</select>
+	
+	<insert id="insertHeart" parameterType="FeedHeart">
+		INSERT INTO FEED_BOARD_HEART
+		VALUES (#{ feedBoardNo }, #{ heartEmpNo })
+	</insert>
+
+	<update id="updatePlusFeedBoard" parameterType="FeedHeart">
+		UPDATE FEED_BOARD
+		SET 
+		FCOUNT = (SELECT TO_NUMBER(FCOUNT) + 1
+				  FROM FEED_BOARD
+				  WHERE FBOARD_NO = #{ feedBoardNo })		
+		WHERE FBOARD_NO = #{ feedBoardNo }
+	</update>
+	
+	<delete id="deleteHeart" parameterType="FeedHeart">
+		DELETE FROM FEED_BOARD_HEART
+		WHERE FBOARD_NO = #{ feedBoardNo } AND EMP_NO = #{ heartEmpNo }
+	</delete>
+	
+	<update id="updateMinusFeedBoard" parameterType="FeedHeart">
+		UPDATE FEED_BOARD
+		SET 
+		FCOUNT = (SELECT TO_NUMBER(FCOUNT) - 1
+				  FROM FEED_BOARD
+				  WHERE FBOARD_NO = #{ feedBoardNo })		
+		WHERE FBOARD_NO = #{ feedBoardNo }
+	</update>
+	
+	<update id="updateFeedBoard" parameterType="FeedBoard">
+		UPDATE FEED_BOARD
+		SET
+		FCONTENT = #{ feedContent },
+		FMODIFY_DATE = SYSDATE
+		WHERE FBOARD_NO = #{ fboardNo } 
+	</update>
+	
+	<update id="updateReply" parameterType="FeedReply">
+		UPDATE FEED_BOARD_REPLY
+		SET
+		RMODIFY_DATE = SYSDATE,
+		RCONTENT = #{ replyContent }
+		WHERE FREPLY_NO = #{ feedReplyNo }
+	</update>
+
+</mapper>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Education">
+
+	<insert id="enrollEdu" parameterType="Education">
+		INSERT INTO EDUCATION
+		VALUES (SEQ_EDUCATION_NO.NEXTVAL, #{empNo}, #{eduTitle}, #{eduContent}, DEFAULT, #{eduDate}, DEFAULT, DEFAULT)
+	</insert>
+
+	<insert id="insertFile" parameterType="AttachmentEdu">
+		INSERT INTO ATTACHMENT_EDU
+		VALUES (SEQ_ATTACHMENT_EDU_NO.NEXTVAL, SEQ_EDUCATION_NO.CURRVAL, #{originName}, #{changeName})
+	</insert>
+
+ 	<resultMap type="Education" id="educationResultMap">
+	     <id property="eduNo" column="EDUCATION_NO"/>
+	     <result property="empNo" column="EMP_NO"/> 
+	     <result property="empName" column="EMP_NAME"/> 
+	     <result property="positionName" column="POSITION_NAME"/> 
+	     <result property="eduTitle" column="EDUCATION_TITLE"/>
+	     <result property="eduContent" column="EDUCATION_CONTENT"/>
+	     <result property="eduCount" column="EDUCATION_COUNT"/>
+	     <result property="eduDate" column="EDU_DATE"/>
+	     <result property="eduYn" column="EDUCATION_YN"/>
+	     <result property="likeCount" column="LIKE_COUNT"/>
+	     <result property="changeName" column="CHANGE_NAME"/>
+	     <collection property="educationReplyList" 
+			javaType="java.util.List" resultMap="replyEduResultMap"/>
+	</resultMap>
+
+	<select id="selectEducationList" resultMap="educationResultMap">
+		SELECT E.EDUCATION_NO
+		     , E.EMP_NO
+		     , E.EDUCATION_TITLE
+		     , TO_CHAR(E.EDUCATION_DATE, 'yyyy-mm-dd hh24:mm:ss') AS EDU_DATE
+		     , A.CHANGE_NAME
+		FROM EDUCATION E
+		JOIN ATTACHMENT_EDU A ON(E.EDUCATION_NO = A.EDUCATION_NO)
+		AND E.EDUCATION_YN = 'Y' 
+		ORDER BY E.EDUCATION_DATE DESC
+	</select>
+
+	<select id="getEducationListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(EDUCATION_NO)
+		FROM EDUCATION
+		WHERE EDUCATION_YN = 'Y' 
+	</select>
+
+	<select id="selectEducationDetail" parameterType="String" resultMap="educationResultMap">
+		SELECT ED.EDUCATION_NO
+		     , ED.EMP_NO
+		     , E.EMP_NAME
+		     , P.POSITION_NAME
+		     , ED.EDUCATION_TITLE
+		     , ED.EDUCATION_CONTENT
+		     , ED.EDUCATION_COUNT
+		     , ED.LIKE_COUNT
+		     , TO_CHAR(ED.EDUCATION_DATE, 'yyyy-mm-dd hh24:mm:ss') AS EDU_DATE
+		     , AE.CHANGE_NAME
+		     , RE.REPLY_EDU_NO
+             , RE.EDUCATION_NO AS "REPLY_PBOARD_NO" 
+             , RE.EMP_NO AS "REPLY_EMP_NO"
+             , RE.REPLY_CONTENT 
+             , RE.REPLY_DATE
+             , RE.REPLY_YN 
+             , E.EMP_NAME AS "REPLY_EMP_NAME"
+             , P.POSITION_NAME AS "REPLY_POSITION_NAME"
+             , RA.CHANGE_NAME AS "REPLY_PHOTO"
+		FROM EDUCATION ED
+		JOIN ATTACHMENT_EDU AE ON(ED.EDUCATION_NO = AE.EDUCATION_NO)
+		JOIN EMPLOYEE E ON (ED.EMP_NO = E.EMP_NO) 
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		LEFT JOIN ATTACHMENT_BOARD AB ON(ED.EMP_NO = AB.FOREIGN_NO)
+		LEFT JOIN REPLY_EDU RE ON (ED.EDUCATION_NO = RE.EDUCATION_NO)
+		LEFT JOIN EMPLOYEE EM ON(RE.EMP_NO = EM.EMP_NO)
+		LEFT JOIN POSITION RP ON (EM.POSITION_NO = RP.POSITION_NO)
+		LEFT JOIN ATTACHMENT_BOARD RA ON (EM.EMP_NO = RA.FOREIGN_NO)
+		WHERE ED.EDUCATION_YN = 'Y'
+		AND ED.EDUCATION_NO = #{ eduNo } 
+		AND (ED.EDUCATION_YN IS NULL OR ED.EDUCATION_YN = 'Y')
+		ORDER BY EDUCATION_DATE DESC, REPLY_DATE ASC
+	</select>
+	
+	<update id="plusViewsCount" parameterType="Education">
+		UPDATE EDUCATION 
+		SET EDUCATION_COUNT=(SELECT EDUCATION_COUNT FROM EDUCATION WHERE EDUCATION_NO = #{eduNo}) + 1 WHERE EDUCATION_NO = #{eduNo}
+	</update>
+	
+	<select id="selectHeartCheck" parameterType="likeEducation" resultType="_int">
+		SELECT COUNT(*)
+		FROM LIKE_EDU
+		WHERE EDUCATION_NO = #{ eduNo }
+		AND EMP_NO = #{ empNo }
+	</select>
+	
+	<insert id="insertHeart" parameterType="likeEducation">
+		INSERT INTO LIKE_EDU
+		VALUES (#{ eduNo }, #{ empNo })
+	</insert>
+
+	<delete id="deleteHeart" parameterType="likeEducation">
+		DELETE LIKE_EDU
+		WHERE EDUCATION_NO = #{ eduNo }
+		AND EMP_NO =  #{ empNo }
+	</delete>
+	
+	<update id="updateEduLikeIn" parameterType="String">
+		UPDATE EDUCATION
+		SET LIKE_COUNT = (SELECT LIKE_COUNT FROM EDUCATION WHERE EDUCATION_NO = #{ eduNo }) + 1
+		WHERE EDUCATION_NO = #{ eduNo }
+	</update>
+	
+	<update id="updateEduLikeDel" parameterType="String">
+		UPDATE EDUCATION
+		SET LIKE_COUNT = (SELECT LIKE_COUNT FROM EDUCATION WHERE EDUCATION_NO = #{ eduNo }) - 1
+		WHERE EDUCATION_NO = #{ eduNo }
+	</update>
+	
+	<resultMap type="ReplyEdu" id="replyEduResultMap">
+	     <id property="replyNo" column="REPLY_EDU_NO"/>
+	     <result property="eduNo" column="EDUCATION_NO"/> 
+	     <result property="empNo" column="REPLY_EMP_NO"/> 
+	     <result property="empName" column="EMP_NAME"/> 
+	     <result property="replyContent" column="REPLY_CONTENT"/> 
+	     <result property="replyDate" column="REPLY_DATE"/>
+	     <result property="replyYn" column="REPLY_YN"/>
+	     <result property="empName" column="REPLY_EMP_NAME"/>
+	     <result property="positionName" column="REPLY_POSITION_NAME"/>
+	     <result property="deptName" column="REPLY_DEPT_NAME"/>
+	     <result property="replyPhoto" column="REPLY_PHOTO"/>
+	</resultMap>
+	
+	<insert id="insertReply" parameterType="ReplyEdu">
+		INSERT INTO REPLY_EDU
+		VALUES (SEQ_REPLY_EDU_NO.NEXTVAL, #{ eduNo }, #{ empNo }, #{ replyContent }, #{ replyDate }, DEFAULT)
+	</insert>
+	
+	<select id="selectReplyList" parameterType="String" resultMap="replyEduResultMap">
+		SELECT RE.REPLY_EDU_NO
+             , RE.EDUCATION_NO AS "REPLY_PBOARD_NO" 
+             , RE.EMP_NO AS "REPLY_EMP_NO"
+             , RE.REPLY_CONTENT 
+             , RE.REPLY_DATE
+             , RE.REPLY_YN 
+             , E.EMP_NAME AS "REPLY_EMP_NAME"
+             , P.POSITION_NAME AS "REPLY_POSITION_NAME"
+             , RA.CHANGE_NAME AS "REPLY_PHOTO"
+        FROM REPLY_EDU RE
+        JOIN EMPLOYEE E ON (RE.EMP_NO = E.EMP_NO)
+        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        LEFT JOIN ATTACHMENT_BOARD RA ON (RE.EMP_NO = RA.FOREIGN_NO)
+        WHERE EDUCATION_NO = #{ eduNo }
+        AND RE.REPLY_YN = 'Y'
+        ORDER BY REPLY_DATE
+	</select>
+	
+</mapper>  

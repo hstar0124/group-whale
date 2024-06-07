@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+  
+<configuration>
+
+  		<settings>
+  			<setting name="jdbcTypeForNull" value="NULL"/>
+  		</settings>
+
+		<!-- typeAlias 설정도해줘! -->
+  		<typeAliases>
+  			<typeAlias type="com.kh.gw.member.model.vo.Member" alias="Member"/>
+  			<typeAlias type="com.kh.gw.settings.model.vo.Department" alias="Department"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.Notice" alias="Notice"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.AllBoard" alias="AllBoard"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.AllBoardReply" alias="AllBoardReply"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.Survey" alias="Survey"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.SurveyQuestion" alias="SurveyQuestion"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.SurveyAnswer" alias="SurveyAnswer"/>
+  			<typeAlias type="com.kh.gw.board.model.vo.Attachment" alias="Attachment"/>
+  			<typeAlias type="com.kh.gw.mail.model.vo.Mail" alias="Mail"/>
+  			<typeAlias type="com.kh.gw.mail.model.vo.AttachmentMail" alias="AttachmentMail"/>
+  			<typeAlias type="com.kh.gw.member.model.vo.Position" alias="Position"/>
+  			<typeAlias type="com.kh.gw.member.model.vo.PositionList" alias="PositionList"/>
+  			<typeAlias type="com.kh.gw.member.model.vo.Duty" alias="Duty" />
+  			<typeAlias type="com.kh.gw.member.model.vo.DutyList" alias="DutyList" />
+  			<typeAlias type="com.kh.gw.member.model.vo.ChangePwd" alias="ChangePwd" />
+  			<typeAlias type="com.kh.gw.messenger.model.vo.Message" alias="Message" />
+  			<typeAlias type="com.kh.gw.member.model.vo.Attachment" alias="MemberAttachment" />  		
+  			<typeAlias type="com.kh.gw.approval.model.vo.CompanyDocumentBox" alias="CompanyDocumentBox"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.DocumentForm" alias="DocumentForm"/>
+  			<typeAlias type="com.kh.gw.messenger.model.vo.Room" alias="Room" />
+  			<typeAlias type="com.kh.gw.settings.model.vo.MemberDto" alias="MemberDto" />
+  			<typeAlias type="com.kh.gw.settings.model.vo.CountMember" alias="CountMember" />
+  			<typeAlias type="com.kh.gw.approval.model.vo.ApprovalDocument" alias="ApprovalDocument"/>
+  			<typeAlias type="com.kh.gw.member.model.vo.LoginUser" alias="LoginUser" />
+  			<typeAlias type="com.kh.gw.member.model.vo.UpdateMember" alias="UpdateMember" />
+  			<typeAlias type="com.kh.gw.settings.model.vo.MoveDepartment" alias="MoveDepartment"/>
+  			<typeAlias type="com.kh.gw.settings.model.vo.Manager" alias="Manager"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.BoxList" alias="BoxList"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.ListCount" alias="ListCount"/>
+  			<typeAlias type="com.kh.gw.messenger.model.vo.RoomList" alias="RoomList" />
+  			<typeAlias type="com.kh.gw.approval.model.vo.MostUseForm" alias="MostUseForm"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Folder" alias="Folder"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.ApprovalLine" alias="ApprovalLine"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.ApprovalStep" alias="ApprovalStep"/>
+  			<typeAlias type="com.kh.gw.messenger.model.vo.Thema" alias="Thema" />
+  			<typeAlias type="com.kh.gw.calender.model.vo.Calender" alias="Calender"/>
+  			<typeAlias type="com.kh.gw.calender.model.vo.CalenderRepeat" alias="CalenderRepeat"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.AttachmentApp" alias="AttachmentApp"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.TodoList" alias="TodoList"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Card" alias="Card"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Label" alias="Label"/>
+  			<typeAlias type="com.kh.gw.messenger.model.vo.MemberImg" alias="MemberImg" />
+  			<typeAlias type="com.kh.gw.approval.model.vo.ApprovalVo" alias="ApprovalVo"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.Peruse" alias="Peruse"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Attachment" alias="TodoAttachment"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Checklist" alias="Checklist"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Member" alias="TodoMember"/>
+  			<typeAlias type="com.kh.gw.todo.model.vo.Reply" alias="TodoReply"/>
+  			<typeAlias type="com.kh.gw.sales.model.vo.Client" alias="Client"/>
+  			<typeAlias type="com.kh.gw.sales.model.vo.Request" alias="Request"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.Authority" alias="Authority"/>
+  			<typeAlias type="com.kh.gw.sales.model.vo.Payment" alias="Payment"/>
+  			<typeAlias type="com.kh.gw.messenger.model.vo.AttachmentMs" alias="AttachmentMs" />
+  			<typeAlias type="com.kh.gw.feed.model.vo.FeedBoard" alias="FeedBoard"/>
+  			<typeAlias type="com.kh.gw.feed.model.vo.FeedReply" alias="FeedReply"/>
+  			<typeAlias type="com.kh.gw.feed.model.vo.Attachment" alias="FeedAttachment" />
+  			<typeAlias type="com.kh.gw.feed.model.vo.FeedHeart" alias="FeedHeart" />
+  			<typeAlias type="com.kh.gw.sales.model.vo.DayMoney" alias="DayMoney"/>
+  			<typeAlias type="com.kh.gw.approval.model.vo.SearchCondition" alias="SearchCondition"/>
+  			<typeAlias type="com.kh.gw.feed.model.vo.FeedHeartCount" alias="FeedHeartCount" />
+  			<typeAlias type="com.kh.gw.goodPlace.model.vo.AttachmentPicture" alias="AttachmentPicture"/>
+  			<typeAlias type="com.kh.gw.goodPlace.model.vo.LikesPicture" alias="LikesPicture"/>
+  			<typeAlias type="com.kh.gw.goodPlace.model.vo.PictureBoard" alias="PictureBoard"/>
+  			<typeAlias type="com.kh.gw.goodPlace.model.vo.ReplyPicture" alias="ReplyPicture"/>
+  			<typeAlias type="com.kh.gw.education.model.vo.Education" alias="Education" />
+  			<typeAlias type="com.kh.gw.education.model.vo.AttachmentEdu" alias="AttachmentEdu" />
+  			<typeAlias type="com.kh.gw.club.model.vo.Club" alias="Club" />
+  			<typeAlias type="com.kh.gw.club.model.vo.ClubMember" alias="ClubMember" />
+  			<typeAlias type="com.kh.gw.education.model.vo.LikeEducation" alias="LikeEducation" />
+  			<typeAlias type="com.kh.gw.education.model.vo.ReplyEdu" alias="ReplyEdu" />
+  		</typeAliases>
+  
+  		<!-- dao에서 쓸라면 매퍼! -->
+  		<!-- Invocation of init method failed; nested exception is org.springframework.core.NestedIOException: Failed to parse config resource: class path resource [mybatis-config.xml]; nested exception is org.apache.ibatis.builder.BuilderException: Error parsing SQL Mapper Configuration. Cause: org.apache.ibatis.builder.BuilderException: Error parsing Mapper XML. The XML location is 'mappers/member-mapper.xml'. Cause: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'Member'.  Cause: java.lang.ClassNotFoundException: Cannot find class: Member -->
+  		<mappers>
+  		
+  			<mapper resource="mappers/member-mapper.xml"></mapper>
+  			<mapper resource="mappers/settings-mapper.xml"></mapper>
+  			<mapper resource="mappers/notice-mapper.xml"></mapper>
+  			<mapper resource="mappers/allBoard-mapper.xml"></mapper>
+  			<mapper resource="mappers/allBoardReply-mapper.xml"></mapper>
+  			<mapper resource="mappers/survey-mapper.xml"></mapper>
+  			<mapper resource="mappers/mail-mapper.xml"></mapper>
+  			<mapper resource="mappers/messenger-mapper.xml"></mapper>
+  			<mapper resource="mappers/approval-mapper.xml"></mapper>
+  			<mapper resource="mappers/todo-mapper.xml"></mapper>
+  			<mapper resource="mappers/calender-mapper.xml"></mapper>
+  			<mapper resource="mappers/sales-mapper.xml"></mapper>
+  			<mapper resource="mappers/feed-mapper.xml"></mapper>
+  			<mapper resource="mappers/club-mapper.xml"></mapper>
+  			<mapper resource="mappers/goodPlace-mapper.xml"></mapper>
+  			<mapper resource="mappers/education-mapper.xml"></mapper>
+  		</mappers>
+
+</configuration>
+

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="goodPlace">
+ 	
+ 	<insert id="insertPboard" parameterType="PictureBoard">
+ 		<selectKey keyProperty="pboardNo" order="BEFORE" resultType="String">
+			SELECT SEQ_PBOARD_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO PICTURE_BOARD
+		VALUES (#{ pboardNo }, #{ empNo }, #{ title }, #{ enrollDate }, #{ content }, 0, 0, DEFAULT)
+ 	</insert>
+	
+	<insert id="insertAttachment" parameterType="AttachmentPicture">
+		INSERT INTO ATTACHMENT_PICTURE
+		VALUES (SEQ_ATTPIC_NO.NEXTVAL, #{pboardNo}, #{ originName }, #{ changeName } )
+	</insert>
+	
+	<resultMap type="PictureBoard" id="pictureBoardResultMap">
+		<id property="pboardNo" column="PBOARD_NO" />
+		<result property="empNo" column="EMP_NO" />
+		<result property="title" column="TITLE" />
+		<result property="enrollDate" column="ENROLL_DATE" />
+		<result property="content" column="CONTENT" />
+		<result property="views" column="VIEWS" />
+		<result property="likes" column="LIKES" />
+		<result property="changeName" column="CHANGE_NAME" />
+		<result property="positionName" column="POSITION_NAME" />
+		<result property="empName" column="EMP_NAME" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="writerPhoto" column="WRITER_PHOTO"/>
+		<collection property="pboardReplyList" 
+			javaType="java.util.List" resultMap="ReplyPictureResultMap"/>
+	</resultMap>
+	
+	<resultMap type="ReplyPicture" id="ReplyPictureResultMap">
+		<id property="preplyNo" column="PREPLY_NO"/>
+		<result property="pboardNo" column="REPLY_PBOARD_NO"/>
+		<result property="empNo" column="REPLY_EMP_NO"/>
+		<result property="content" column="REPLY_CONTENT"/>
+		<result property="replyDate" column="REPLY_DATE"/>
+		<result property="status" column="REPLY_STATUS"/>
+		<result property="empName" column="REPLY_EMP_NAME"/>
+		<result property="positionName" column="REPLY_POSITION_NAME"/>
+		<result property="deptName" column="REPLY_DEPT_NAME"/>
+		<result property="replyPhoto" column="REPLY_PHOTO"/> 
+	</resultMap>
+	
+	<select id="selectPictureBoardList" resultMap="pictureBoardResultMap">
+		SELECT PB.PBOARD_NO
+			 , PB.EMP_NO
+			 , EMP_NAME
+			 , POSITION_NAME
+			 , DEPT_NAME
+		     , TITLE
+		     , ENROLL_DATE
+		     , VIEWS
+		     , LIKES
+		     , STATUS
+		     , CHANGE_NAME
+		FROM PICTURE_BOARD PB
+		JOIN ATTACHMENT_PICTURE AP ON (PB.PBOARD_NO = AP.PBOARD_NO)
+        JOIN EMPLOYEE E ON (PB.EMP_NO = E.EMP_NO)
+        JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        WHERE STATUS = 'y'
+        ORDER BY ENROLL_DATE DESC
+	</select>
+	
+	<select id="selectListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM PICTURE_BOARD
+		WHERE STATUS = 'y'
+	</select>
+	
+	<select id="selectOnePictureBoard" parameterType="String" resultMap="pictureBoardResultMap">
+		SELECT PB.PBOARD_NO
+			 , PB.EMP_NO
+			 , E.EMP_NAME
+			 , P.POSITION_NAME
+			 , D.DEPT_NAME
+		     , TITLE
+		     , PB.ENROLL_DATE
+		     , PB.CONTENT
+		     , VIEWS
+		     , LIKES
+		     , PB.STATUS
+		     , AP.CHANGE_NAME
+             , PR.PREPLY_NO
+             , PR.PBOARD_NO AS "REPLY_PBOARD_NO"
+             , PR.EMP_NO AS "REPLY_EMP_NO"
+             , PR.CONTENT AS "REPLY_CONTENT"
+             , PR.REPLY_DATE
+             , PR.STATUS AS "REPLY_STATUS"
+             , RE.EMP_NAME AS "REPLY_EMP_NAME"
+             , RP.POSITION_NAME AS "REPLY_POSITION_NAME"
+             , RD.DEPT_NAME AS "REPLY_DEPT_NAME"
+             , AB.CHANGE_NAME AS "WRITER_PHOTO"
+             , RA.CHANGE_NAME AS "REPLY_PHOTO"
+		FROM PICTURE_BOARD PB
+		JOIN ATTACHMENT_PICTURE AP ON (PB.PBOARD_NO = AP.PBOARD_NO)
+        JOIN EMPLOYEE E ON (PB.EMP_NO = E.EMP_NO)
+        JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        LEFT JOIN ATTACHMENT_BOARD AB ON (PB.EMP_NO = AB.FOREIGN_NO)
+        LEFT JOIN REPLY_PICTURE PR ON (PB.PBOARD_NO = PR.PBOARD_NO)
+        LEFT JOIN EMPLOYEE RE ON (PR.EMP_NO = RE.EMP_NO)
+        LEFT JOIN DEPARTMENT RD ON (RE.DEPT_NO = RD.DEPT_NO)
+        LEFT JOIN POSITION RP ON (RE.POSITION_NO = RP.POSITION_NO)
+        LEFT JOIN ATTACHMENT_BOARD RA ON (PR.EMP_NO = RA.FOREIGN_NO)
+        WHERE PB.STATUS = 'y' AND PB.PBOARD_NO = #{ pboardNo } AND (PR.STATUS IS NULL OR PR.STATUS = 'Y')
+        ORDER BY ENROLL_DATE DESC, REPLY_DATE ASC
+	</select> 
+	
+	<update id="updateCount" parameterType="String">
+		UPDATE PICTURE_BOARD
+		SET VIEWS = (SELECT VIEWS FROM PICTURE_BOARD WHERE PBOARD_NO = #{ pboardNo }) + 1
+		WHERE PBOARD_NO = #{pboardNo}
+	</update>
+	
+	<insert id="insertReply" parameterType="ReplyPicture">
+		INSERT INTO REPLY_PICTURE
+		VALUES (SEQ_PREPLY_NO.NEXTVAL, #{ pboardNo }, #{ empNo }, #{ content }, #{ replyDate }, DEFAULT)
+	</insert>
+	
+	<select id="selectReplyList" parameterType="String" resultMap="ReplyPictureResultMap">
+		SELECT PREPLY_NO
+             , PBOARD_NO AS "REPLY_PBOARD_NO" 
+             , RP.EMP_NO AS "REPLY_EMP_NO"
+             , CONTENT AS "REPLY_CONTENT"
+             , REPLY_DATE
+             , STATUS AS "REPLY_STATUS"
+             , EMP_NAME AS "REPLY_EMP_NAME"
+             , POSITION_NAME AS "REPLY_POSITION_NAME"
+             , DEPT_NAME AS "REPLY_DEPT_NAME"
+             , RA.CHANGE_NAME AS "REPLY_PHOTO"
+        FROM REPLY_PICTURE RP
+        JOIN EMPLOYEE E ON (RP.EMP_NO = E.EMP_NO)
+        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+        LEFT JOIN ATTACHMENT_BOARD RA ON (RP.EMP_NO = RA.FOREIGN_NO)
+        WHERE PBOARD_NO = #{ pboardNo }
+        ORDER BY REPLY_DATE
+	</select>
+	
+	<select id="selectHeartCheck" parameterType="likesPicture" resultType="_int">
+		SELECT COUNT(*)
+		FROM LIKES_PICTURE
+		WHERE PBOARD_NO = #{ pboardNo } AND EMP_NO = #{ empNo }
+	</select>
+	
+	<insert id="insertHeart" parameterType="LikesPicture">
+		INSERT INTO LIKES_PICTURE (PBOARD_NO, EMP_NO)
+		VALUES ( #{ pboardNo }, #{ empNo } )
+	</insert>
+	
+	<delete id="deleteHeart" parameterType="LikesPicture">
+		DELETE 
+		FROM LIKES_PICTURE
+		WHERE PBOARD_NO = #{ pboardNo } AND EMP_NO = #{ empNo } 
+	</delete>
+	
+	<update id="updatePboardLikesIn" parameterType="String">
+		UPDATE PICTURE_BOARD
+		SET LIKES = (SELECT LIKES FROM PICTURE_BOARD WHERE PBOARD_NO = #{ pboardNo }) + 1
+		WHERE PBOARD_NO = #{pboardNo}
+	</update>
+	
+	<update id="updatePboardLikesDel" parameterType="String">
+		UPDATE PICTURE_BOARD
+		SET LIKES = (SELECT LIKES FROM PICTURE_BOARD WHERE PBOARD_NO = #{ pboardNo }) - 1
+		WHERE PBOARD_NO = #{pboardNo}
+	</update>
+	
+	<select id="selectOnePboardWithoutReply" parameterType="String" resultMap="pictureBoardResultMap">
+		SELECT PB.PBOARD_NO
+			 , PB.EMP_NO
+			 , E.EMP_NAME
+			 , P.POSITION_NAME
+			 , D.DEPT_NAME
+		     , TITLE
+		     , PB.ENROLL_DATE
+		     , PB.CONTENT
+		     , VIEWS
+		     , LIKES
+		     , PB.STATUS
+		     , AP.CHANGE_NAME
+		FROM PICTURE_BOARD PB
+		JOIN ATTACHMENT_PICTURE AP ON (PB.PBOARD_NO = AP.PBOARD_NO)
+        JOIN EMPLOYEE E ON (PB.EMP_NO = E.EMP_NO)
+        JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        LEFT JOIN ATTACHMENT_BOARD AB ON (PB.EMP_NO = AB.FOREIGN_NO)
+        WHERE PB.STATUS = 'y' AND PB.PBOARD_NO = #{ pboardNo } 
+        ORDER BY ENROLL_DATE DESC
+	</select>
+	
+	<update id="updatePboard" parameterType="PictureBoard">
+		UPDATE PICTURE_BOARD 
+		SET TITLE = #{ title }, CONTENT = #{ content }
+		WHERE PBOARD_NO = #{ pboardNo }
+	</update>
+	
+	<update id="updatePboardAttachment" parameterType="AttachmentPicture">
+		UPDATE ATTACHMENT_PICTURE
+		SET ORIGIN_NAME = #{ originName }, CHANGE_NAME = #{ changeName }
+		WHERE PBOARD_NO = #{ pboardNo }
+	</update>
+	
+	<delete id="deletePboard" parameterType="String">
+		DELETE 
+		FROM PICTURE_BOARD
+		WHERE PBOARD_NO = #{ pboardNo }
+	</delete>
+	
+	<delete id="deletePboardAttachment" parameterType="String">
+		DELETE 
+		FROM ATTACHMENT_PICTURE
+		WHERE PBOARD_NO = #{ pboardNo }
+	</delete>
+	
+	<delete id="deletePboardReply" parameterType="String">
+		DELETE
+		FROM REPLY_PICTURE
+		WHERE PREPLY_NO = #{ preplyNo }
+	</delete>
+	
+	<update id="updatePboardReply" parameterType="ReplyPicture">
+		UPDATE REPLY_PICTURE
+		SET CONTENT = #{ content }
+		WHERE PREPLY_NO = #{ preplyNo }
+	</update>
+</mapper>  

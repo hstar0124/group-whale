@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mail"><!-- 별칭과는 다르다! => 아래들의 Member와는 다르다! -->
+	
+	<resultMap id="resultMailListSet" type="Mail">
+		<result column="MAIL_NO" property="mailNo"/>
+		<result column="EMP_NO" property="empNo"/>
+		<result column="MAIL_SUBJECT" property="mailSubject"/>
+		<result column="MAIL_CONTENT" property="mailContent"/>
+		<result column="MAIL_ENROLLDATE" property="mailEnrollDate"/>
+		<result column="MAIL_STATUS" property="mailStatus"/>
+		<result column="EA_SIZE" property="eaSize"/>
+		<result column="RECEIVER_EMAIL" property="receiver"/>
+		<result column="MAIL_FROM" property="from"/>
+		<result column="EMP_NAME" property="empName"/>
+		<result column="POSITION_NAME" property="positionName"/>
+		<result column="READ" property="read"/>
+		<collection property="attachment" resultMap="AttachmentMail"></collection>
+	</resultMap>
+	
+	<resultMap type="AttachmentMail" id="AttachmentMail">
+		<result column="EA_NO" property="eaNo"/>
+		<result column="MAIL_NO" property="mailNo"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+		<result column="EA_SIZE" property="eaSize"/>
+		<result column="FILE_PATH" property="filePath"/>
+	</resultMap>
+	
+	<insert id="insertMail" parameterType="Mail">
+		INSERT INTO EMAIL_MAIL(MAIL_NO, EMP_NO, MAIL_SUBJECT, MAIL_CONTENT, MAIL_ENROLLDATE, MAIL_STATUS,MAIL_FROM)
+		VALUES (SEQ_MAIL_NO.NEXTVAL, #{empNo}, #{mailSubject}, #{mailContent}, #{mailEnrollDate}, 'Y', #{from})
+	</insert>
+	
+	<insert id="insertMailBox" parameterType="Mail">
+		INSERT INTO EMAIL_MAILBOX(MAILBOX_NO, MAIL_NO, EMP_NO, MAILBOX_TYPE, IMPORTANT, READ)
+		VALUES (SEQ_MB_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{empNo}, 1, 'N', 'N')
+	</insert>
+	
+	<insert id="insertReceiver" parameterType="Mail"> 
+		INSERT INTO EMAIL_RECEIVER(RECEIVER_NO, MAIL_NO, RECEIVER_EMAIL, RECEIVER_TYPE)
+		VALUES (SEQ_REC_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{receiver}, '1')
+	</insert>
+	
+	<insert id="insertMailAttachment" parameterType="AttachmentMail">
+		INSERT INTO ATTACHMENT_EMAIL(EA_NO, MAIL_NO, ORIGIN_NAME, CHANGE_NAME, EA_SIZE, FILE_PATH)
+		VALUES(SEQ_EA_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{ originName }, #{ changeName }, #{ eaSize }, #{filePath} ) 
+	</insert>
+	
+	<insert id="insertReceiveMail" parameterType="Mail">
+		INSERT INTO EMAIL_MAIL(MAIL_NO, EMP_NO, MAIL_SUBJECT, MAIL_CONTENT, MAIL_ENROLLDATE, MAIL_STATUS, MAIL_FROM)
+		VALUES (SEQ_MAIL_NO.NEXTVAL, #{empNo}, #{mailSubject}, #{mailContent}, #{mailEnrollDate}, 'Y', #{from} )
+	</insert>
+	
+	<insert id="insertReceiveMailBox" parameterType="Mail">
+		INSERT INTO EMAIL_MAILBOX(MAILBOX_NO, MAIL_NO, EMP_NO, MAILBOX_TYPE, IMPORTANT, READ)
+		VALUES (SEQ_MB_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{empNo}, 2, 'N', 'N')
+	</insert>
+	
+	<insert id="insertSendMailBox" parameterType="Mail">
+		INSERT INTO EMAIL_MAILBOX(MAILBOX_NO, MAIL_NO, EMP_NO, MAILBOX_TYPE, IMPORTANT, READ)
+		VALUES (SEQ_MB_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{empNo}, 1, 'N', 'N')
+	</insert>
+	
+	<insert id="insertReceiveReceiverMail" parameterType="Mail">
+		INSERT INTO EMAIL_RECEIVER(RECEIVER_NO, MAIL_NO, RECEIVER_EMAIL, RECEIVER_TYPE)
+		VALUES (SEQ_REC_NO.NEXTVAL, SEQ_MAIL_NO.CURRVAL, #{receiver}, '1')
+	</insert>
+
+	<select id="selectSendListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMAIL_MAIL EM
+        JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        JOIN EMAIL_MAILBOX MB ON (EM.MAIL_NO = MB.MAIL_NO)
+		WHERE MAIL_STATUS = 'Y'
+        AND E.EMP_NO = #{empNo}
+        AND MAILBOX_TYPE = '1'
+	</select>
+	
+	<select id="getNotReadMailListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMAIL_MAIL EM
+		JOIN EMAIL_MAILBOX MB ON (EM.MAIL_NO = MB.MAIL_NO)
+		WHERE MB.EMP_NO = #{empNo}
+		AND MAILBOX_TYPE = '2'
+		AND READ = 'N'
+	</select>
+	<select id="selectReceiveListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMAIL_MAIL EM
+        JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        JOIN EMAIL_MAILBOX MB ON (EM.MAIL_NO = MB.MAIL_NO)
+		WHERE MAIL_STATUS = 'Y'
+        AND E.EMP_NO = #{empNo}
+        AND MAILBOX_TYPE = '2'
+	</select>
+	
+	<select id="selectImportantListCount" resultType="_int">
+        SELECT COUNT(*)
+		FROM EMAIL_MAIL EM
+        JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        JOIN EMAIL_MAILBOX MB ON (EM.MAIL_NO = MB.MAIL_NO)
+		WHERE MAIL_STATUS = 'Y'
+        AND E.EMP_NO = #{empNo}
+        AND IMPORTANT = 'Y'
+	</select>
+	
+	<select id="selectSendMailList" resultMap="resultMailListSet">
+        SELECT EM.MAIL_NO
+			 , EM.EMP_NO
+			 , EM.MAIL_SUBJECT
+			 , EM.MAIL_CONTENT
+			 , EM.MAIL_ENROLLDATE
+			 , EM.MAIL_STATUS
+			 , SUM(ROUND(EA.EA_SIZE/1024,1)) AS EA_SIZE
+			 , ER.RECEIVER_EMAIL
+	    FROM EMAIL_MAIL EM
+        LEFT JOIN ATTACHMENT_EMAIL EA ON(EA.MAIL_NO = EM.MAIL_NO)
+        JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        LEFT JOIN EMAIL_MAILBOX MB ON (MB.MAIL_NO = EM.MAIL_NO)
+        LEFT JOIN EMAIL_RECEIVER ER ON (ER.MAIL_NO = EM.MAIL_NO)
+        WHERE MAIL_STATUS = 'Y'
+        AND MAILBOX_TYPE = '1'
+        AND E.EMP_EMAIL = #{empEmail}
+        GROUP BY EM.MAIL_NO
+             , EM.EMP_NO
+			 , EM.MAIL_SUBJECT
+			 , EM.MAIL_CONTENT
+			 , EM.MAIL_ENROLLDATE
+			 , EM.MAIL_STATUS
+			 , ER.RECEIVER_EMAIL
+        ORDER BY EM.MAIL_NO DESC
+	</select>
+	<!-- 받은 메일은 EMAIL_MAIL,EMAIL_MAILBOX에 INSERT -->
+	<select id="selectReceiveMailList" resultMap="resultMailListSet">
+        SELECT EM.MAIL_NO
+			 , EM.EMP_NO
+			 , EM.MAIL_SUBJECT
+			 , EM.MAIL_CONTENT
+			 , EM.MAIL_ENROLLDATE
+			 , EM.MAIL_STATUS
+			 , SUM(ROUND(EA.EA_SIZE/1024,1)) AS EA_SIZE
+			 , ER.RECEIVER_EMAIL
+             , E.EMP_NAME
+             , P.POSITION_NAME
+			 , EM.MAIL_FROM
+			 , MB.READ
+	    FROM EMAIL_MAIL EM
+        LEFT JOIN ATTACHMENT_EMAIL EA ON(EA.MAIL_NO = EM.MAIL_NO)
+        JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        LEFT JOIN EMAIL_MAILBOX MB ON (MB.MAIL_NO = EM.MAIL_NO)
+        LEFT JOIN EMAIL_RECEIVER ER ON (ER.MAIL_NO = EM.MAIL_NO)
+        LEFT JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        WHERE MAIL_STATUS = 'Y'
+        AND MAILBOX_TYPE = '2'
+        AND ER.RECEIVER_EMAIL = #{empEmail}
+        GROUP BY EM.MAIL_NO
+             , EM.EMP_NO
+			 , EM.MAIL_SUBJECT
+			 , EM.MAIL_CONTENT
+			 , EM.MAIL_ENROLLDATE
+			 , EM.MAIL_STATUS
+			 , ER.RECEIVER_EMAIL
+			 , EM.MAIL_FROM
+             , E.EMP_NAME
+             , P.POSITION_NAME
+             , MB.READ
+        ORDER BY EM.MAIL_NO DESC
+	</select>
+	
+	<select id="selectImportantList" resultMap="resultMailListSet">
+	      SELECT *
+      FROM EMAIL_MAIL EM 
+        LEFT JOIN EMPLOYEE E ON(E.EMP_NO = EM.EMP_NO)
+      LEFT JOIN EMAIL_MAILBOX MB ON(EM.MAIL_NO = MB.MAIL_NO)
+      LEFT JOIN EMAIL_RECEIVER MR ON(EM.MAIL_NO = MR.MAIL_NO)
+      WHERE mr.receiver_email = #{empNo}
+        and mailbox_type = 2
+      AND MB.IMPORTANT = 'Y'
+      AND EM.MAIL_STATUS = 'Y'    
+		
+		UNION 
+
+		SELECT *
+      FROM EMAIL_MAIL EM
+        LEFT JOIN EMPLOYEE E ON(E.EMP_NO = EM.EMP_NO)
+      LEFT JOIN EMAIL_MAILBOX MB ON(EM.MAIL_NO = MB.MAIL_NO)
+      LEFT JOIN EMAIL_RECEIVER ER ON(EM.MAIL_NO = ER.MAIL_NO)
+      WHERE MAIL_FROM = #{empNo}
+        and mailbox_type = 1
+      AND MB.IMPORTANT = 'Y'
+      AND EM.MAIL_STATUS = 'Y'
+        
+	</select>
+	
+	<!-- 보낸 사람,받는 사람 이메일도 있어야해 -->
+	<select id="selectOneSendMail" parameterType="_int" resultMap="resultMailListSet">
+		SELECT *
+        FROM EMAIL_MAIL
+        WHERE MAIL_NO = #{mailNo}
+	</select>
+	
+	<select id="selectOneReceiveMail" parameterType="_int" resultMap="resultMailListSet">
+		SELECT *
+        FROM EMAIL_MAIL EM
+        LEFT JOIN EMPLOYEE E ON (E.EMP_NO = EM.EMP_NO)
+        LEFT JOIN POSITION P ON (P.POSITION_NO = E.POSITION_NO)
+        WHERE EM.MAIL_NO = #{mailNo}
+	</select>
+	
+	
+	
+	<select id="selectFileList" resultMap="AttachmentMail">
+		SELECT EA_NO
+			  ,MAIL_NO
+			  ,ORIGIN_NAME
+			  ,CHANGE_NAME
+			  ,EA_SIZE
+			  ,FILE_PATH
+		FROM ATTACHMENT_EMAIL
+		WHERE MAIL_NO = #{mailNo}
+	</select>
+	
+	<select id="selectOneAttachment" resultMap="AttachmentMail">
+		SELECT EA_NO
+			  ,MAIL_NO
+			  ,ORIGIN_NAME
+			  ,CHANGE_NAME
+			  ,EA_SIZE
+			  ,FILE_PATH
+		FROM ATTACHMENT_EMAIL
+		WHERE EA_NO = #{eaNo}
+	</select>
+	
+	<select id="selectSearchResultCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMAIL_MAIL EM
+		JOIN EMAIL_MAILBOX MB ON (MB.MAIL_NO = EM.MAIL_NO)
+		JOIN EMPLOYEE E ON (EM.EMP_NO = E.EMP_NO)
+		WHERE EM.MAIL_STATUS = 'Y'
+		AND MAILBOX_TYPE = '2'
+		<if test="subject != null">
+		    AND MAIL_SUBJECT LIKE '%' || #{subject} || '%' 
+		</if>
+		<if test="content != null">
+			AND MAIL_CONTENT LIKE '%' || #{content} || '%'
+		</if>
+	</select>
+	
+	<select id="selectSearchResultList" resultMap="resultMailListSet">
+		SELECT *
+		FROM EMAIL_MAIL EM
+		JOIN EMAIL_MAILBOX MB ON (MB.MAIL_NO = EM.MAIL_NO)
+		JOIN EMPLOYEE E ON (EM.EMP_NO = E.EMP_NO)
+		WHERE EM.MAIL_STATUS = 'Y'
+		AND MAILBOX_TYPE = '2'
+			<if test="subject != null">
+				AND MAIL_SUBJECT LIKE '%' || #{subject} || '%'
+				</if>
+			<if test="content != null">
+				AND MAIL_CONTENT LIKE '%' || #{content} || '%'
+				</if>
+		ORDER BY EM.MAIL_NO DESC 
+	</select>
+	
+	<update id="updateReadMail" parameterType="_int">
+		UPDATE EMAIL_MAILBOX
+	 		SET READ = 'Y'
+	 		WHERE MAIL_NO = #{ mailNo }
+	</update>
+	
+	<select id="selectNotReadMailList" resultMap="resultMailListSet">
+		SELECT *
+		FROM EMAIL_MAIL EM
+		JOIN EMAIL_MAILBOX MB ON ( EM.MAIL_NO = MB.MAIL_NO)
+		WHERE READ = 'N'
+		AND EM.EMP_NO = #{empNo}
+		AND MB.MAILBOX_TYPE = '2'
+		<![CDATA[AND ROWNUM <= 5 ]]>
+		ORDER BY EM.MAIL_NO DESC
+	</select>
+</mapper>  

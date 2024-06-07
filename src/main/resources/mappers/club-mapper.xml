@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="club">
+ 	<!-- 동호회 등록 -->
+	<insert id="insertClub" parameterType="Club">
+		<selectKey keyProperty="clubNo" order="BEFORE" resultType="String">
+			SELECT SEQ_CLUB_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO CLUB_BOARD
+		VALUES (#{ clubNo }, #{ masterEmpNo }, #{ clubName }, SYSDATE, DEFAULT, DEFAULT, DEFAULT)
+	</insert>
+	
+	<!-- 동호회 등록 시 멤버로 추가 -->
+	<insert id="insertMember" parameterType="Club">
+		INSERT INTO CLUB_MEMBER
+		VALUES (SEQ_CLUB_MEMBER_NO.NEXTVAL, #{ clubNo }, #{ masterEmpNo })
+	</insert>
+	
+	<!-- 전체 동호회 목록 -->
+	<select id="selectTotalClubList" resultMap="totalClubListSet">
+		SELECT C.CLUB_NO, C.MASTER_EMP_NO, C.CLUB_NAME, C.ENROLL_DATE, C.TOTAL_MEMBER, C.TOTAL_POST, E.EMP_NAME
+		FROM CLUB_BOARD C
+		LEFT JOIN EMPLOYEE E ON (C.MASTER_EMP_NO = E.EMP_NO)
+		WHERE DELETE_YN = 'N' 
+		ORDER BY TO_NUMBER(CLUB_NO) ASC
+	</select>
+	
+	<resultMap type="Club" id="totalClubListSet">
+		<id column="CLUB_NO" property="clubNo" />
+		<result column="MASTER_EMP_NO" property="masterEmpNo" />
+		<result column="CLUB_NAME" property="clubName" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="TOTAL_MEMBER" property="totalMember" />
+		<result column="TOTAL_POST" property="totalPost" />
+		<result column="EMP_NAME" property="empName" />
+	</resultMap>
+	
+	<!-- 가입한 동호회 목록 -->
+	<select id="selectjoinedClubList" resultMap="joinedClubListSet" parameterType="String">
+		SELECT C.CLUB_NO, C.MASTER_EMP_NO, C.CLUB_NAME, C.ENROLL_DATE, C.TOTAL_MEMBER, C.TOTAL_POST, E.EMP_NAME
+		FROM CLUB_MEMBER M
+		LEFT JOIN CLUB_BOARD C ON (M.CLUB_NO = C.CLUB_NO)
+		LEFT JOIN EMPLOYEE E ON (C.MASTER_EMP_NO = E.EMP_NO)
+		WHERE DELETE_YN = 'N' AND M.EMP_NO = #{ empNo }
+		ORDER BY TO_NUMBER(C.CLUB_NO) ASC
+	</select>
+	
+	<resultMap type="Club" id="joinedClubListSet">
+		<id column="CLUB_NO" property="clubNo" />
+		<result column="MASTER_EMP_NO" property="masterEmpNo" />
+		<result column="CLUB_NAME" property="clubName" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="TOTAL_MEMBER" property="totalMember" />
+		<result column="TOTAL_POST" property="totalPost" />
+		<result column="EMP_NAME" property="empName" />
+	</resultMap>
+	
+	<!-- 동호회 멤버 목록 -->
+	<select id="selectMemberList" resultMap="memberListSet" parameterType="Club">
+		SELECT E.EMP_NAME, P.POSITION_NAME, A.CHANGE_NAME, M.MEMBER_NO, M.EMP_NO, M.CLUB_NO, C.TOTAL_MEMBER
+		FROM CLUB_BOARD C
+        JOIN CLUB_MEMBER M ON (C.CLUB_NO = M.CLUB_NO)
+		JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = M.EMP_NO)
+		JOIN EMPLOYEE E ON (A.FOREIGN_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		WHERE M.CLUB_NO = #{ clubNo }
+		ORDER BY TO_NUMBER(M.MEMBER_NO) ASC
+	</select>
+	
+	<resultMap type="ClubMember" id="memberListSet">
+		<id column="MEMBER_NO" property="memberNo" />
+		<result column="EMP_NAME" property="empName" />
+		<result column="POSITION_NAME" property="positionName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="EMP_NO" property="empNo" />
+		<result column="CLUB_NO" property="clubNo" />
+		<result column="TOTAL_MEMBER" property="totalMember" />
+	</resultMap>
+	
+	<!-- 멤버 추가 -->
+	<insert id="addClubMember" parameterType="ClubMember">
+		INSERT INTO CLUB_MEMBER
+		VALUES (SEQ_CLUB_MEMBER_NO.NEXTVAL, #{ clubNo }, #{ empNo })
+	</insert>
+	
+	<!-- 멤버 추가시 멤버 수 증가 -->
+	<update id="increaseNumberOfMember" parameterType="ClubMember">
+		UPDATE CLUB_BOARD
+		SET
+		TOTAL_MEMBER = (SELECT TO_NUMBER(TOTAL_MEMBER) + 1
+						FROM CLUB_BOARD
+						WHERE CLUB_NO = #{ clubNo })
+		WHERE CLUB_NO = #{ clubNo }
+		
+	</update>
+</mapper>  

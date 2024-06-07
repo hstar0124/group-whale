@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Todo">
+
+	<!-- 폴더 이름 중복 체크 -->
+	<!-- <select id="selectFolderNameCheck" resultType="_int">
+		SELECT COUNT(*)
+		FROM TODO_FOLDER
+		WHERE FOLDER_NAME = #{ folderName }
+	</select> -->
+	
+	<!-- 폴더 목록 조회 -->
+	<select id="selectFolderList" resultMap="resultFolderListSet" parameterType="Folder">
+		SELECT M.FOLDER_NO, F.FOLDER_NAME, F.EMP_NO
+		FROM TODO_MEMBER M
+		LEFT JOIN TODO_FOLDER F ON (M.FOLDER_NO = F.FOLDER_NO)
+		WHERE F.FOLDER_DELETE_YN = 'N' AND M.MEMBER_EMP_NO = #{ empNo }
+		ORDER BY TO_NUMBER(M.FOLDER_NO) ASC
+	</select>
+	
+	<resultMap type="Folder" id="resultFolderListSet">
+		<result column="FOLDER_NO" property="folderNo" />
+		<result column="EMP_NO" property="empNo" />
+		<result column="FOLDER_NAME" property="folderName" />
+	</resultMap>
+
+	<!-- 폴더 추가 -->
+	<insert id="insertFolder" parameterType="Folder">
+		<selectKey keyProperty="folderNo" order="BEFORE" resultType="String">
+			SELECT SEQ_FOL_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TODO_FOLDER
+		VALUES (#{ folderNo }, #{ empNo }, #{ folderName }, DEFAULT)
+	</insert>
+	
+	<!-- 폴더 추가 시 참여자 추가 -->
+	<insert id="insertMember" parameterType="Folder">
+		INSERT INTO TODO_MEMBER
+		VALUES (#{ folderNo }, #{ empNo }, SEQ_MEM_TD.NEXTVAL)
+	</insert>
+	
+	<!-- 폴더명 수정 -->
+	<update id="updateFolderName" parameterType="Folder">
+		UPDATE TODO_FOLDER
+		SET FOLDER_NAME = #{ folderName }
+		WHERE FOLDER_NO = #{ folderNo }
+	</update>
+	
+	<!-- 폴더 삭제 -->
+	<delete id="deleteFolder" parameterType="Folder">
+		DELETE FROM TODO_FOLDER
+		WHERE FOLDER_NO = #{ folderNo } 
+	</delete>
+	
+	<!-- 폴더 삭제시 참여자 삭제  -->
+	<delete id="deleteMember" parameterType="Folder">
+		DELETE FROM TODO_MEMBER
+		WHERE FOLDER_NO = #{ folderNo }
+	</delete>
+	
+	<!-- todoList 페이지 폴더 정보 조회 -->
+	<select id="selectFolderInfo" resultMap="resultFolderInfoSet" parameterType="Folder">
+		SELECT FOLDER_NO, EMP_NO, FOLDER_NAME 
+		FROM TODO_FOLDER 
+		WHERE FOLDER_DELETE_YN = 'N' AND FOLDER_NO = #{ folderNo }
+		ORDER BY TO_NUMBER(FOLDER_NO) ASC
+	</select>
+	
+	<resultMap type="Folder" id="resultFolderInfoSet">
+		<result column="FOLDER_NO" property="folderNo" />
+		<result column="EMP_NO" property="empNo" />
+		<result column="FOLDER_NAME" property="folderName" />
+	</resultMap>
+	
+	<!-- todoList 페이지 리스트 정보 조회 -->
+	<select id="selectListInfo" resultMap="resultListInfoSet" parameterType="Folder">
+		SELECT F.FOLDER_NO, L.LIST_NO, L.LIST_CREATE_EMP_NO, L.LIST_TITLE
+		FROM TODO_FOLDER F
+		LEFT JOIN TODO_LIST L ON F.FOLDER_NO = L.FOLDER_NO
+		WHERE L.LIST_DELETE_YN = 'N' AND F.FOLDER_NO = #{ folderNo }
+		ORDER BY TO_NUMBER(LIST_NO) ASC
+	</select>
+	
+	<resultMap type="TodoList" id="resultListInfoSet">
+		<result column="FOLDER_NO" property="folderNo" />
+		<result column="LIST_NO" property="listNo" />
+		<result column="LIST_CREATE_EMP_NO" property="listCreateEmpNo" />
+		<result column="LIST_TITLE" property="listTitle" />
+	</resultMap>
+	
+	<!-- todoList 페이지 카드 정보 조회 -->
+	<select id="selectCardInfo" resultMap="resultCardInfoSet" parameterType="Folder">
+		SELECT L.LIST_NO, C.CARD_NO, C.CARD_CREATE_EMP_NO, C.INCHARGE_EMP_NO, C.CARD_TITLE, C.DESCRIPTION, C.DUE_DATE
+		FROM TODO_FOLDER F
+		LEFT JOIN TODO_LIST L ON F.FOLDER_NO = L.FOLDER_NO
+		LEFT JOIN TODO_CARD C ON L.LIST_NO = C.LIST_NO
+		WHERE C.CARD_DELETE_YN = 'N' AND F.FOLDER_NO = #{ folderNo }
+		ORDER BY TO_NUMBER(CARD_NO) ASC
+	</select>
+	
+	<resultMap type="Card" id="resultCardInfoSet">
+		<result column="LIST_NO" property="listNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="CARD_CREATE_EMP_NO" property="cardCreateEmpNo" />
+		<result column="INCHARGE_EMP_NO" property="inchargeEmpNo" />
+		<result column="CARD_TITLE" property="cardTitle" />
+		<result column="DESCRIPTION" property="description" />
+		<result column="DUE_DATE" property="dueDate" />
+	</resultMap>
+	
+	<!-- todoList 페이지 라벨 정보 조회 -->
+	<select id="selectLabelInfo" resultMap="resultLabelInfoSet" parameterType="Folder">
+		SELECT C.CARD_NO, B.LABEL_NO, B.COLOR_NO
+		FROM TODO_FOLDER F
+		LEFT JOIN TODO_LIST L ON F.FOLDER_NO = L.FOLDER_NO
+		LEFT JOIN TODO_CARD C ON L.LIST_NO = C.LIST_NO
+		LEFT JOIN TODO_LABEL B ON C.CARD_NO = B.CARD_NO
+		WHERE B.LABEL_DELETE_YN = 'N' AND F.FOLDER_NO = #{ folderNo }
+		ORDER BY TO_NUMBER(LABEL_NO) ASC
+	</select>
+	
+	<resultMap type="Label" id="resultLabelInfoSet">
+		<result column="CARD_NO" property="cardNo" />
+		<result column="LABEL_NO" property="labelNo" />
+		<result column="COLOR_NO" property="colorNo" />
+	</resultMap>
+	
+	<!-- todoList 페이지 참여자 정보 조회 -->
+	<select id="selectMemberInfo" resultMap="resultMemberInfoSet" parameterType="Folder">
+		SELECT FOLDER_NO, MEMBER_EMP_NO
+		FROM TODO_MEMBER
+		WHERE MEMBER_EMP_NO = #{ empNo }
+	</select>
+	
+	<resultMap type="TodoMember" id="resultMemberInfoSet">
+		<result column="FOLDER_NO" property="folderNo"/>
+		<result column="MEMBER_EMP_NO" property="memberEmpNo"/>
+	</resultMap>
+	
+	<!-- 카드 추가 -->
+	<insert id="insertCard" parameterType="Card">
+		<selectKey keyProperty="cardNo" order="BEFORE" resultType="String">
+			SELECT SEQ_CARD_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TODO_CARD
+		VALUES (#{ cardNo }, #{ listNo }, #{ cardCreateEmpNo }, NULL, #{ cardTitle }, NULL, NULL, DEFAULT)
+	</insert>
+	
+	<!-- 리스트 추가 -->
+	<insert id="insertList" parameterType="TodoList">
+		<selectKey keyProperty="listNo" order="BEFORE" resultType="String">
+			SELECT SEQ_LIST_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO TODO_LIST
+		VALUES (#{ listNo }, #{ folderNo }, #{ listCreateEmpNo }, #{ listTitle }, DEFAULT)
+	</insert>
+	
+	<!-- 카드 상세보기 -->
+	<select id="selectCardDetailInfo" resultMap="resultCardDetailSet" parameterType="Card">
+		SELECT F.FOLDER_NO, L.LIST_NO, A.CHANGE_NAME, C.CARD_NO, C.CARD_CREATE_EMP_NO, C.INCHARGE_EMP_NO, C.CARD_TITLE, C.DESCRIPTION, C.DUE_DATE
+		FROM TODO_FOLDER F
+		LEFT JOIN TODO_LIST L ON (F.FOLDER_NO = L.FOLDER_NO)
+		LEFT JOIN TODO_CARD C ON (L.LIST_NO = C.LIST_NO)
+		LEFT JOIN EMPLOYEE E ON (E.EMP_NO = C.INCHARGE_EMP_NO)
+		LEFT JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = E.EMP_NO)
+		WHERE CARD_DELETE_YN = 'N' AND CARD_NO = #{ cardNo }
+	</select>
+	
+	<resultMap type="Card" id="resultCardDetailSet">
+		<result column="FOLDER_NO" property="folderNo" />
+		<result column="LIST_NO" property="listNo" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="CARD_CREATE_EMP_NO" property="cardCreateEmpNo" />
+		<result column="INCHARGE_EMP_NO" property="inchargeEmpNo" />
+		<result column="CARD_TITLE" property="cardTitle" />
+		<result column="DESCRIPTION" property="description" />
+		<result column="DUE_DATE" property="dueDate" />
+	</resultMap>
+	
+	<select id="selectCheckDetailInfo" resultMap="resultCheckDetailSet" parameterType="Card">
+		SELECT CH.CHECKLIST_NO, CH.CHECKLIST_CONTENT, CH.CHECK_YN
+		FROM TODO_CARD CA
+		LEFT JOIN TODO_CHECKLIST CH ON (CA.CARD_NO = CH.CARD_NO)
+		WHERE CH.CHECKLIST_DELETE_YN = 'N' AND CA.CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(CH.CHECKLIST_NO) ASC
+	</select>
+	
+	<resultMap type="CheckList" id="resultCheckDetailSet">
+		<result column="CHECKLIST_NO" property="checklistNo" />
+		<result column="CHECKLIST_CONTENT" property="checklistContent" />
+		<result column="CHECK_YN" property="checkYN" />
+	</resultMap>
+	
+	<select id="selectLabelDetailInfo" resultMap="resultLabelDetailSet" parameterType="Card">
+		SELECT L.LABEL_NO, L.COLOR_NO
+		FROM TODO_CARD C
+		LEFT JOIN TODO_LABEL L ON (C.CARD_NO = L.CARD_NO)
+		WHERE L.LABEL_DELETE_YN = 'N' AND C.CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(L.LABEL_NO) ASC
+	</select>
+	
+	<resultMap type="Label" id="resultLabelDetailSet">
+		<result column="LABEL_NO" property="labelNo" />
+		<result column="COLOR_NO" property="colorNo" />
+	</resultMap>
+	
+	<select id="selectReplyDetailInfo" resultMap="resultReplyDetailSet" parameterType="Card">
+		SELECT E.EMP_NAME, P.POSITION_NAME, R.REPLY_NO, R.REPLY_CREATE_EMP_NO, R.REPLY_CONTENT, R.ENROLL_DATE, R.MODIFY_DATE
+		FROM EMPLOYEE E
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN TODO_REPLY R ON (E.EMP_NO = R.REPLY_CREATE_EMP_NO)
+		JOIN TODO_CARD C ON(C.CARD_NO = R.CARD_NO)
+		WHERE R.REPLY_DELETE_YN = 'N' AND C.CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(R.REPLY_NO) ASC
+	</select>
+	
+	<resultMap type="TodoReply" id="resultReplyDetailSet">
+		<result column="EMP_NAME" property="empName" />
+		<result column="POSITION_NAME" property="positionName" />
+		<result column="REPLY_NO" property="replyNo" />
+		<result column="REPLY_CREATE_EMP_NO" property="replyCreateEmpNo" />
+		<result column="REPLY_CONTENT" property="replyContent" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="MODIFY_DATE" property="modifyDate" />
+	</resultMap>
+	
+	<select id="selectAttachDetailInfo" resultMap="resultAttachDetailSet" parameterType="Card">
+		SELECT A.ATTACH_NO, A.CARD_NO, A.ORIGIN_NAME, A.CHANGE_NAME, A.FILE_PATH, A.UPLOAD_DATE, A.FILE_SIZE
+		FROM TODO_CARD C
+		LEFT JOIN ATTACHMENT_TODO A ON (C.CARD_NO = A.CARD_NO)
+		WHERE A.ATTACH_DELETE_YN = 'N' AND C.CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(A.ATTACH_NO) ASC
+	</select>
+	
+	<resultMap type="TodoAttachment" id="resultAttachDetailSet">
+		<result column="ATTACH_NO" property="attachNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="ORIGIN_NAME" property="originName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="FILE_PATH" property="filePath" />
+		<result column="UPLOAD_DATE" property="uploadDate" />
+		<result column="FILE_SIZE" property="fileSize" />
+	</resultMap>
+	
+	<!-- 리스트 삭제 -->
+	<delete id="deleteList" parameterType="TodoList">
+		DELETE FROM TODO_LIST
+		WHERE LIST_NO = #{ listNo }
+	</delete>
+	
+	<!-- 카드 삭제 -->
+	<delete id="deleteCard" parameterType="Card">
+		DELETE FROM TODO_CARD
+		WHERE CARD_NO = #{ cardNo }
+	</delete>
+	
+	<!-- 참여자 목록 불러오기 -->
+	<select id="selectParticipantList" resultMap="resultParticipantSet" parameterType="Folder">
+		SELECT E.EMP_NAME, P.POSITION_NAME, A.CHANGE_NAME, M.FOLDER_NO, M.MEMBER_EMP_NO
+		FROM TODO_MEMBER M
+		JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = M.MEMBER_EMP_NO)
+		JOIN EMPLOYEE E ON (A.FOREIGN_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		WHERE M.FOLDER_NO = #{ folderNo }
+		ORDER BY TO_NUMBER(M.MEMBER_NO) ASC
+	</select>
+	
+	<resultMap type="TodoMember" id="resultParticipantSet">
+		<result column="EMP_NAME" property="empName"/>
+		<result column="POSITION_NAME" property="positionName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+		<result column="FOLDER_NO" property="folderNo"/>
+		<result column="MEMBER_EMP_NO" property="memberEmpNo" />
+	</resultMap>
+	
+	<!-- 참여자 추가 시 조직도 조회 -->
+	<select id="selectMemberList" resultMap="resultMemberListSet">
+		SELECT EMP_NO
+		     , EMP_NAME
+		     , EMP_EMAIL
+		     , PHONE
+		     , DECODE(EMP_STATUS, '1', '재직', '2', '휴직', '3', '퇴사') "STATUS"
+		     , DUTY_NO
+		     , DUTY_NAME
+		     , POSITION_NO
+		     , POSITION_NAME
+		     , DEPT_NO
+		     , DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN DUTY USING (DUTY_NO)
+		JOIN DEPARTMENT USING (DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		WHERE EMP_STATUS != '3'
+		ORDER BY POSITION_NO, DUTY_NO
+	</select>
+	
+	<resultMap type="MemberDto" id="resultMemberListSet">
+		<result column="EMP_NO" property="empNo" />
+		<result column="EMP_NAME" property="empName" />
+		<result column="EMP_EMAIL" property="empEmail" />
+		<result column="PHONE" property="phone" />
+		<result column="STATUS" property="status" />
+		<result column="DUTY_NO" property="dutyNo" />
+		<result column="DUTY_NAME" property="dutyName" />
+		<result column="POSITION_NO" property="positionNo" />
+		<result column="POSITION_NAME" property="positionName" />
+		<result column="DEPT_NO" property="deptNo" />	
+		<result column="DEPT_NAME" property="deptName" />	
+	</resultMap>
+	
+	<!-- 참여자 추가 -->
+	<insert id="insertParticipant" parameterType="Member">
+		INSERT INTO TODO_MEMBER
+		VALUES (#{ folderNo }, #{ memberEmpNo }, SEQ_MEM_TD.NEXTVAL)
+	</insert>
+	
+	<!-- 참여자 삭제 -->
+	<delete id="deleteParticipant" parameterType="Member">
+		DELETE FROM TODO_MEMBER
+		WHERE FOLDER_NO = #{ folderNo } AND MEMBER_EMP_NO = #{ memberEmpNo }
+	</delete>
+	
+	<!-- 담당자 추가 -->
+	<update id="insertIncharge" parameterType="Card">
+		UPDATE TODO_CARD 
+		SET INCHARGE_EMP_NO = #{ inchargeEmpNo }	
+		WHERE CARD_NO = #{ cardNo }
+	</update>
+	
+	<!-- 담당자 불러오기 -->
+	<select id="selectIncharge" resultMap="resultInchargeSet" parameterType="Card">
+		SELECT C.CARD_NO, C.CARD_CREATE_EMP_NO, C.INCHARGE_EMP_NO, A.CHANGE_NAME
+		FROM TODO_CARD C
+		LEFT JOIN EMPLOYEE E ON (E.EMP_NO = C.INCHARGE_EMP_NO)
+		LEFT JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = E.EMP_NO)
+		WHERE CARD_NO = #{ cardNo }
+	</select>
+	
+	<resultMap type="Card" id="resultInchargeSet">
+		<result column="CARD_NO" property="cardNo" />
+		<result column="CARD_CREATE_EMP_NO" property="cardCreateEmpNo" />
+		<result column="CHANGE_NAME" property="changeName" />
+	</resultMap>
+	
+	<!-- 담당자 삭제 -->
+	<update id="deleteIncharge" parameterType="Card">
+		UPDATE TODO_CARD
+		SET INCHARGE_EMP_NO = NULL
+		WHERE CARD_NO = #{ cardNo } AND INCHARGE_EMP_NO = #{ inchargeEmpNo }
+	</update>
+	
+	<!-- 체크리스트 추가 -->
+	<insert id="insertChecklist" parameterType="Checklist">
+		INSERT INTO TODO_CHECKLIST
+		VALUES (SEQ_CKL_NO.NEXTVAL, #{ cardNo }, #{ checklistContent }, DEFAULT, DEFAULT) 
+	</insert>
+	
+	<!-- 체크리스트 불러오기 -->
+	<select id="selectChecklist" resultMap="resultChecklistSet" parameterType="Checklist">
+		SELECT CHECKLIST_NO, CARD_NO, CHECKLIST_CONTENT, CHECK_YN
+		FROM TODO_CHECKLIST
+		WHERE CARD_NO = #{ cardNo } AND CHECKLIST_DELETE_YN = 'N'
+		ORDER BY TO_NUMBER(CHECKLIST_NO) ASC
+	</select>
+	
+	<resultMap type="CheckList" id="resultChecklistSet">
+		<result column="CHECKLIST_NO" property="checklistNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="CHECKLIST_CONTENT" property="checklistContent" />
+		<result column="CHECK_YN" property="checkYN" />
+	</resultMap>
+	
+	<!-- 체크리스트 체크 상태 변경 -->
+	<update id="updateCheckStatus" parameterType="Checklist">
+		UPDATE TODO_CHECKLIST
+		SET CHECK_YN = #{ checkYN }
+		WHERE CHECKLIST_NO = #{ checklistNo } 
+	</update>
+	
+	<!-- 파일 업로드 -->
+	<insert id="uploadFile" parameterType="TodoAttachment">
+		INSERT INTO ATTACHMENT_TODO
+		VALUES (SEQ_ATTACHMENT_TD.NEXTVAL, #{ cardNo }, #{ originName }, #{ changeName }, #{ filePath }, SYSDATE, DEFAULT, #{ fileSize } )
+	</insert>
+	
+	<!-- 파일 불러오기 -->
+	<select id="selectFileList" resultMap="resultSelectFileListSet" parameterType="TodoAttachment">
+		SELECT ATTACH_NO, CARD_NO, ORIGIN_NAME, CHANGE_NAME, FILE_PATH, UPLOAD_DATE, FILE_SIZE
+		FROM ATTACHMENT_TODO
+		WHERE CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(ATTACH_NO) ASC
+	</select>
+	
+	<resultMap type="TodoAttachment" id="resultSelectFileListSet">
+		<result column="ATTACH_NO" property="attachNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="ORIGIN_NAME" property="originName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="FILE_PATH" property="filePath" />
+		<result column="UPLOAD_DATE" property="uploadDate"/>
+		<result column="FILE_SIZE" property="fileSize"/>
+	</resultMap>
+	
+	<!-- 파일 다운로드 -->
+	<select id="downloadFile" resultMap="resultSelectFileSet" parameterType="String">
+		SELECT ATTACH_NO, CARD_NO, ORIGIN_NAME, CHANGE_NAME, FILE_PATH, UPLOAD_DATE, FILE_SIZE
+		FROM ATTACHMENT_TODO
+		WHERE ATTACH_NO = #{ attachNo }
+	</select>
+	
+	<resultMap type="TodoAttachment" id="resultSelectFileSet">
+		<result column="ATTACH_NO" property="attachNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="ORIGIN_NAME" property="originName" />
+		<result column="CHANGE_NAME" property="changeName" />
+		<result column="FILE_PATH" property="filePath" />
+		<result column="UPLOAD_DATE" property="uploadDate"/>
+		<result column="FILE_SIZE" property="fileSize"/>
+	</resultMap>
+	
+	<!-- 파일 삭제 -->
+	<delete id="deleteFile" parameterType="TodoAttachment">
+		DELETE FROM ATTACHMENT_TODO
+		WHERE CARD_NO = #{ cardNo } AND ATTACH_NO = #{ attachNo }
+	</delete>
+	
+	<!-- 라벨 추가 -->
+	<insert id="insertLabel" parameterType="Label">
+		INSERT INTO TODO_LABEL
+		VALUES (SEQ_LB_NO.NEXTVAL, #{ cardNo }, #{ colorNo }, DEFAULT)
+	</insert>
+	
+	<!-- 기한일 추가 -->
+	<update id="insertDuedate" parameterType="Card">
+		UPDATE TODO_CARD
+		SET DUE_DATE = TO_DATE(#{ dueDate })
+		WHERE CARD_NO = #{ cardNo }
+	</update> 
+	
+	<!-- 기한일 삭제 -->
+	<update id="deleteDuedate" parameterType="String">
+		UPDATE TODO_CARD
+		SET DUE_DATE = NULL
+		WHERE CARD_NO = #{ cardNo }
+	</update>
+	
+	<!-- 설명 추가 -->
+	<update id="insertDescription" parameterType="Card">
+		UPDATE TODO_CARD
+		SET DESCRIPTION = #{ description }
+		WHERE CARD_NO = #{ cardNo }
+	</update>
+	
+	<!-- 댓글 등록 -->
+	<insert id="insertReply" parameterType="TodoReply">
+		INSERT INTO TODO_REPLY
+		VALUES (SEQ_REPLY_TD.NEXTVAL, #{ cardNo }, #{ replyCreateEmpNo }, #{ replyContent }, #{ enrollDate }, NULL, DEFAULT) 
+	</insert>
+	
+	<!-- 댓글 목록 불러오기 -->
+	<select id="selectReplyList" resultMap="resultReplyListSet" parameterType="TodoReply">
+		SELECT E.EMP_NAME, P.POSITION_NAME, R.REPLY_NO, R.CARD_NO, R.REPLY_CREATE_EMP_NO, R.REPLY_CONTENT, R.ENROLL_DATE, R.MODIFY_DATE
+		FROM EMPLOYEE E
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN TODO_REPLY R ON (E.EMP_NO = R.REPLY_CREATE_EMP_NO)
+		JOIN TODO_CARD C ON(C.CARD_NO = R.CARD_NO)
+		WHERE R.REPLY_DELETE_YN = 'N' AND C.CARD_NO = #{ cardNo }
+		ORDER BY TO_NUMBER(R.REPLY_NO) ASC
+	</select>
+	
+	<resultMap type="TodoReply" id="resultReplyListSet">
+		<result column="REPLY_NO" property="replyNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="REPLY_CREATE_EMP_NO" property="replyCreateEmpNo" />
+		<result column="REPLY_CONTENT" property="replyContent" />
+		<result column="ENROLL_DATE" property="enrollDate" />
+		<result column="MODIFY_DATE" property="modifyDate" />
+		<result column="EMP_NAME" property="empName" />
+		<result column="POSITION_NAME" property="positionName" />
+	</resultMap>
+	
+	<!-- 댓글 수정 -->
+	<update id="updateReply" parameterType="TodoReply">
+		UPDATE TODO_REPLY
+		SET REPLY_CONTENT = #{ replyContent }, MODIFY_DATE = #{ modifyDate }
+		WHERE REPLY_NO = #{ replyNo }
+	</update>
+	
+	<!-- 댓글 삭제 -->
+	<update id="deleteReply" parameterType="TodoReply">
+		UPDATE TODO_REPLY
+		SET REPLY_DELETE_YN = 'Y'
+		WHERE REPLY_NO = #{ replyNo }
+	</update>
+	
+	<!-- 체크리스트 수정 -->
+	<update id="updateChecklist" parameterType="Checklist">
+		UPDATE TODO_CHECKLIST
+		SET CHECKLIST_CONTENT = #{ checklistContent }
+		WHERE CHECKLIST_NO = #{ checklistNo }
+	</update>
+	
+	<!-- 체크리스트 삭제 -->
+	<update id="deleteChecklist" parameterType="Checklist">
+		UPDATE TODO_CHECKLIST
+		SET CHECKLIST_DELETE_YN = 'Y'
+		WHERE CHECKLIST_NO = #{ checklistNo }
+	</update>
+	
+	<!-- 라벨 삭제 -->
+	<delete id="deleteLabel" parameterType="Label">
+		DELETE FROM TODO_LABEL
+		WHERE CARD_NO = #{ cardNo } AND COLOR_NO = #{ colorNo }
+	</delete>
+	
+	<!-- 리스트 제목 수정 -->
+	<update id="updateListName" parameterType="TodoList">
+		UPDATE TODO_LIST
+		SET LIST_TITLE = #{ listTitle }
+		WHERE LIST_NO = #{ listNo }
+	</update>
+	
+	<!-- 카드 제목 수정 -->
+	<update id="updateCardName" parameterType="Card">
+		UPDATE TODO_CARD
+		SET CARD_TITLE = #{ cardTitle }
+		WHERE CARD_NO = #{ cardNo }
+	</update>
+	
+	<!-- 카드 추가시 카드 목록 불러오기 -->
+	<select id="selectCardList" resultMap="resultCardListSet" parameterType="Card">
+		SELECT LIST_NO, CARD_NO, CARD_CREATE_EMP_NO, INCHARGE_EMP_NO, CARD_TITLE, DESCRIPTION, DUE_DATE
+		FROM TODO_CARD
+		WHERE CARD_DELETE_YN = 'N' AND LIST_NO = #{ listNo }
+		ORDER BY TO_NUMBER(CARD_NO) ASC
+	</select>
+	
+	<resultMap type="Card" id="resultCardListSet">
+		<result column="LIST_NO" property="listNo" />
+		<result column="CARD_NO" property="cardNo" />
+		<result column="CARD_CREATE_EMP_NO" property="cardCreateEmpNo" />
+		<result column="INCHARGE_EMP_NO" property="inchargeEmpNo" />
+		<result column="CARD_TITLE" property="cardTitle" />
+		<result column="DESCRIPTION" property="description" />
+		<result column="DUE_DATE" property="dueDate" />
+	</resultMap>
+	
+	<!-- 카드 추가시 라벨 정보 불러오기 -->
+	<select id="selectLabelList" resultMap="resultLabelListSet" parameterType="Card">
+		SELECT B.CARD_NO, B.LABEL_NO, B.COLOR_NO
+		FROM TODO_LIST L
+		LEFT JOIN TODO_CARD C ON L.LIST_NO = C.LIST_NO
+		LEFT JOIN TODO_LABEL B ON C.CARD_NO = B.CARD_NO
+		WHERE B.LABEL_DELETE_YN = 'N' AND L.LIST_NO = #{ listNo }
+		ORDER BY TO_NUMBER(B.LABEL_NO) ASC
+	</select>
+	
+	<resultMap type="Label" id="resultLabelListSet">
+		<result column="CARD_NO" property="cardNo" />
+		<result column="LABEL_NO" property="labelNo" />
+		<result column="COLOR_NO" property="colorNo" />	
+	</resultMap>
+</mapper>

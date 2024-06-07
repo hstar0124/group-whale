@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Member"><!-- 별칭과는 다르다! => 아래들의 Member와는 다르다! -->
+	
+	<resultMap type="Member" id="memberResultSet">
+	     <id property="empNo" column="EMP_NO"/>
+	     <result property="empPwd" column="EMP_PWD"/> 
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="entryDate" column="ENTRY_DATE"/>
+	     <result property="empEmail" column="EMP_EMAIL"/>
+	     <result property="phone" column="PHONE"/>
+	     <result property="zipCode" column="ZIPCODE"/>
+	     <result property="address" column="ADDRESS"/>
+	     <result property="empStatus" column="EMP_STATUS"/>
+	     <result property="dutyNo" column="DUTY_NO"/>
+	     <result property="positionNo" column="POSITION_NO"/>
+	     <result property="deptNo" column="DEPT_NO"/>
+	</resultMap>
+
+	<resultMap type="MemberAttachment" id="attachmentResultSet">
+		<id column="ATTACHMENT_NO" property="attachmentNo"/>
+		<result column="FOREIGN_NO" property="foreignNo"/>
+		<result column="ORIGIN_NAME" property="originName"/>
+		<result column="CHANGE_NAME" property="changeName"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="ATT_STATUS" property="attStatus"/>
+	</resultMap>
+	
+	<insert id="insertMemberAttachment" parameterType="MemberAttachment">
+		INSERT INTO ATTACHMENT_BOARD
+		VALUES (SEQ_ATTACHMENT_BOARD.NEXTVAL, #{foreignNo}, #{originName}, #{changeName}, SYSDATE, 'Y')
+	</insert>
+
+	<!-- select, insert, update, delete를 각각의 태그로 제공하고 있다.  -->
+	<!-- 
+		id : 외부(DAO)에서 참조하기 위한 쿼리문의 이름
+		parameterType : 내부로 받을 객체(alias 사용 가능)
+		resultType :  쿼리 실행 후 나온 결과 타입
+		resultMap : 쿼리 실행 후 나온 결과(resultSet)을 밖으로 꺼내(자바 객체로)는 타입을 지정하는 속성 
+	 -->
+	
+	<select id="loginCheck" resultMap="memberResultSet" parameterType="Member">
+		SELECT *
+		FROM EMPLOYEE
+		WHERE EMP_NO = #{empNo}
+		AND EMP_PWD = #{empPwd}
+		<!-- AND EMP_STATUS = 1 -->
+	</select>
+	
+	<!-- 암호화된 비밀번호 조회 메소드  -->
+	<select id="selectPwd" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT EMP_PWD
+		FROM EMPLOYEE
+		WHERE EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectLoginUser" resultMap="memberResultSet" parameterType="Member">
+		SELECT *
+		FROM EMPLOYEE
+		WHERE EMP_NO = #{empNo}
+	</select>
+
+
+	<insert id="insertMember" parameterType="Member">
+		INSERT INTO EMPLOYEE
+		VALUES (#{empNo}, #{empPwd}, #{empName}, #{entryDate}, #{empEmail}, #{phone}, #{zipCode}, #{address}
+				, #{empStatus}, #{dutyNo}, #{positionNo}, #{deptNo})
+	</insert>
+	
+	<select id="selectEmpNoMatching" resultType="_int" parameterType="java.lang.String">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE EMP_NO = #{empNo} 
+	</select>
+	
+	<select id="selectMemberList"  resultMap="memberResultSet">
+		SELECT EMP_NO
+		     , EMP_PWD
+		     , EMP_NAME
+		     , ENTRY_DATE
+		     , EMP_EMAIL
+		     , PHONE
+		     , ZIPCODE
+		     , ADDRESS
+		     , EMP_STATUS
+		     , DUTY_NO
+		     , POSITION_NO
+		     , DEPT_NO
+		FROM EMPLOYEE
+	</select>
+	
+	
+	
+	<resultMap type="Position" id="positionResultSet">
+		<result column="POSITION_NO" property="positionNo"/>
+		<result column="POSITION_NAME" property="positionName"/>
+	</resultMap>
+	
+	<select id="selectPositionList" resultMap="positionResultSet">
+		SELECT POSITION_NO
+			 , POSITION_NAME
+		FROM POSITION
+	</select>
+	
+	
+	<resultMap type="Duty" id="dutyResultSet">
+		<result column="DUTY_NO" property="dutyNo"/>
+		<result column="DUTY_NAME" property="dutyName"/>
+	</resultMap>
+	
+	<select id="selectDutyList" resultMap="dutyResultSet">
+		SELECT DUTY_NO
+			 , DUTY_NAME
+		FROM DUTY
+	</select>
+
+	<!-- 진규 추가 -->
+	<resultMap type="LoginUser" id="LoginUserResultSet">
+	     <id property="empNo" column="EMP_NO"/>
+	     <result property="empPwd" column="EMP_PWD"/> 
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="entryDate" column="ENTRY_DATE"/>
+	     <result property="empEmail" column="EMP_EMAIL"/>
+	     <result property="phone" column="PHONE"/>
+	     <result property="zipCode" column="ZIPCODE"/>
+	     <result property="address" column="ADDRESS"/>
+	     <result property="empStatus" column="EMP_STATUS"/>
+	     <result property="dutyNo" column="DUTY_NO"/>
+	     <result property="dutyName" column="DUTY_NAME"/>
+	     <result property="positionNo" column="POSITION_NO"/>
+	     <result property="deptNo" column="DEPT_NO"/>
+	     <result property="positionName" column="POSITION_NAME"/>
+	     <result property="deptName" column="DEPT_NAME"/>
+	     <result property="photoName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<select id="selectLoginUserInfo" resultMap="LoginUserResultSet"  parameterType="LoginUser">
+		SELECT E.EMP_NO
+		     , E.EMP_PWD
+		     , E.EMP_NAME
+		     , E.ENTRY_DATE
+		     , E.EMP_EMAIL
+		     , E.PHONE
+		     , E.ZIPCODE
+		     , E.ADDRESS
+		     , E.EMP_STATUS
+		     , DUTY_NO
+		     , DUTY_NAME
+		     , E.POSITION_NO
+		     , E.DEPT_NO
+		     , P.POSITION_NAME
+		     , D.DEPT_NAME
+		     , A.CHANGE_NAME
+		FROM EMPLOYEE E
+		JOIN POSITION P ON (P.POSITION_NO = E.POSITION_NO)
+		JOIN DEPARTMENT D ON (D.DEPT_NO = E.DEPT_NO)
+		LEFT JOIN ATTACHMENT_BOARD A ON (E.EMP_NO = A.FOREIGN_NO)
+		JOIN DUTY USING (DUTY_NO)
+		WHERE E.EMP_NO = #{empNo}
+	</select>
+
+
+	<update id="updateMember" parameterType="UpdateMember">		
+		UPDATE EMPLOYEE
+		SET 
+		PHONE = #{ phone },
+		ZIPCODE = #{ zipCode },
+		ADDRESS = #{ address }
+		WHERE EMP_NO = #{ empNo }
+	</update>
+	
+	<update id="updateDetailMember" parameterType="updateMember">
+		UPDATE EMPLOYEE
+		SET 
+		EMP_NAME = #{ empName },
+		ENTRY_DATE = #{ entryDate },
+		PHONE = #{ phone },
+		ZIPCODE = #{ zipCode },
+		ADDRESS = #{ address },
+		EMP_STATUS = #{ empStatus },
+		DUTY_NO = #{ dutyNo },
+		POSITION_NO = #{ positionNo },
+		DEPT_NO = #{ deptNo }
+		WHERE EMP_NO = #{ empNo }
+	</update>
+
+	<delete id="deleteMemberAttachment" parameterType="java.lang.String">
+		DELETE FROM ATTACHMENT_BOARD
+		WHERE CHANGE_NAME = #{ originPicture }
+	</delete>
+	
+	<update id="updateMemberPwd" parameterType="ChangePwd">
+		UPDATE EMPLOYEE
+		SET 
+		EMP_PWD = #{ changePwd }
+		WHERE EMP_NO = #{ empNo }
+	</update>
+
+
+</mapper>  

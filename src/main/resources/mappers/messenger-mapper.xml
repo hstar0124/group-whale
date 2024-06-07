@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Messenger">
+	
+ 	<resultMap type="Message" id="messageResultSet">
+	     <id property="messageNo" column="MESSAGE_NO"/>
+	     <result property="roomNo" column="ROOM_NO"/> 
+	     <result property="sendDate" column="SEND_DATE"/>
+	     <result property="empNo" column="EMP_NO"/>
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="positionName" column="POSITION_NAME"/>
+	     <result property="profilePhoto" column="CHANGE_NAME"/>
+	     <result property="roomName" column="ROOM_NAME"/>
+	     <result property="messageType" column="MESSAGE_TYPE"/>
+	     <result property="messageContent" column="MESSAGE_CONTENT"/>
+	     <result property="messageFile" column="FILE_NAME"/>
+	</resultMap>
+ 	<resultMap type="Room" id="roomResultSet">
+	     <id property="roomNo" column="Room_NO"/>
+	     <result property="roomName" column="ROOM_NAME"/> 
+	     <result property="createDate" column="CREATE_DATE"/>
+	     <result property="roomStatus" column="ROOM_STATUS"/>
+	     <result property="roomImg" column="ROOM_IMG"/>
+	     <result property="empNo" column="EMP_NO"/>
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="profilePhoto" column="CHANGE_NAME"/>
+	     <result property="messageContent" column="MESSAGE_CONTENT"/>
+	     <result property="sendDate" column="SEND_DATE"/>
+	</resultMap>
+ 	<resultMap type="RoomList" id="roomListResultSet">
+	     <id property="roomNo" column="ROOMLIST_NO"/>
+	     <result property="empNo" column="EMP_NO"/>
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="roomImg" column="ROOM_IMG"/>
+	     <result property="positionName" column="POSITION_NAME"/>
+	     <result property="photoName" column="CHANGE_NAME"/>
+	     <result property="roomListYn" column="ROOMLIST_YN"/>
+	</resultMap>
+ 	<resultMap type="Thema" id="themaResultSet">
+	     <id property="themaNo" column="THEMA_NO"/>
+	     <result property="themaColor" column="THEMA_COLOR"/>
+	     <result property="empNo" column="EMP_NO"/>
+	</resultMap>
+ 	<resultMap type="MemberImg" id="memberImgResultSet">
+	     <id property="empNo" column="EEMP_NO"/>
+	     <result property="empImg" column="CHANGE_NAME"/>
+	</resultMap>
+ 	<resultMap type="AttachmentMs" id="attachmentResultSet">
+	     <id property="attachmentNo" column="ATTACHMENT_NO"/>
+	     <result property="messageNo" column="MESSAGE_NO"/>
+	     <result property="originName" column="ORIGIN_NAME"/>
+	     <result property="changeName" column="CHANGE_NAME"/>
+	     <result property="filePath" column="FILE_PATH"/>
+	     <result property="uploadDate" column="UPLOAD_DATE"/>
+	     <result property="deleteYn" column="DELETE_YN"/>
+	</resultMap>
+
+
+	<insert id="insertMessage" parameterType="Message">
+		INSERT INTO MESSAGE
+		VALUES (SEQ_MESSAGE_NO.NEXTVAL, #{roomNo}, #{sendDate}, #{empNo}, #{messageType}, #{messageContent})
+	</insert>
+
+	<insert id="insertMessage2" parameterType="Message">
+		INSERT INTO MESSAGE
+		VALUES (SEQ_MESSAGE_NO.NEXTVAL, SEQ_ROOM_NO.CURRVAL, #{sendDate}, #{empNo}, '0', '입$장')
+	</insert>
+
+	<insert id="insertMessage3" parameterType="Message">
+		INSERT INTO MESSAGE
+		VALUES (SEQ_MESSAGE_NO.NEXTVAL, #{roomNo}, #{sendDate}, #{empNo}, '0', '입$장')
+	</insert>
+
+	<insert id="exitMessage" parameterType="Message">
+		INSERT INTO MESSAGE
+		VALUES (SEQ_MESSAGE_NO.NEXTVAL, #{roomNo}, #{sendDate}, #{empNo}, '0', '퇴$장')
+	</insert>
+
+	<select id="selectHistory" resultMap="messageResultSet" parameterType="Message">
+		SELECT M.MESSAGE_NO
+		     , M.ROOM_NO
+		     , M.SEND_DATE
+		     , M.EMP_NO
+		     , E.EMP_NAME
+		     , P.POSITION_NAME
+		     , A.CHANGE_NAME
+		     , M.MESSAGE_TYPE
+		     , M.MESSAGE_CONTENT
+		     , R.ROOM_NAME
+		     , MS.CHANGE_NAME AS FILE_NAME
+		FROM MESSAGE M
+		JOIN EMPLOYEE E ON (M.EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = E.EMP_NO)
+		JOIN ROOM R ON (M.ROOM_NO = R.ROOM_NO)
+		LEFT JOIN ATTACHMENT_MS MS ON (MS.MESSAGE_NO = M.MESSAGE_NO) 
+		WHERE M.ROOM_NO = #{roomNo}
+		ORDER BY M.SEND_DATE
+	</select>
+	
+<!-- 	<select id="selectRoomList" resultMap="roomResultSet" parameterType="Room">
+		SELECT R.ROOM_NO
+		     , R.ROOM_NAME
+		     , R.CREATE_DATE
+		     , R.ROOM_STATUS
+		     , E.EMP_NO 
+		FROM ROOM R
+		JOIN ROOMLIST L ON (R.ROOM_NO = L.ROOMLIST_NO) 
+		JOIN EMPLOYEE E ON (L.EMP_NO = E.EMP_NO)
+		WHERE R.ROOM_STATUS = 'Y'
+		AND E.EMP_NO = #{empNo}
+	</select> -->
+	<select id="selectRoomList" resultMap="roomResultSet" parameterType="Room">
+		SELECT ROOM_NO
+		     , ROOM_NAME
+		     , CREATE_DATE
+		     , ROOM_STATUS
+		     , EMP_NO
+		     , POSITION_NAME
+		     , CHANGE_NAME
+		     , MESSAGE_CONTENT
+		     , SEND_DATE
+		FROM (SELECT RANK()OVER(ORDER BY M.SEND_DATE DESC) TOP
+		             , R.ROOM_NO
+		             , R.ROOM_NAME
+		             , R.CREATE_DATE
+		             , R.ROOM_STATUS
+		             , M.EMP_NO
+		             , P.POSITION_NAME
+		             , A.CHANGE_NAME
+		             , M.MESSAGE_CONTENT
+		             , M.SEND_DATE
+		        FROM ROOM R
+		        JOIN ROOMLIST L ON (R.ROOM_NO = L.ROOMLIST_NO) 
+		        JOIN EMPLOYEE E ON (L.EMP_NO = E.EMP_NO)
+		        JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		        JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = M.EMP_NO)
+		        JOIN MESSAGE M ON (R.ROOM_NO = M.ROOM_NO)
+		        WHERE R.ROOM_STATUS = 'Y' 
+		        AND L.ROOMLIST_YN = 'Y'
+		        AND L.EMP_NO = #{empNo})
+		WHERE TOP = 1
+	</select>
+	
+	<select id="selectRoomList2" resultMap="roomResultSet" parameterType="Room">
+		SELECT R.ROOM_NO
+		     , L.EMP_NO
+		     , R.ROOM_NAME
+		     , R.CREATE_DATE
+		     , R.ROOM_STATUS
+		     , R.ROOM_IMG
+		     , A.CHANGE_NAME
+		     , M.MESSAGE_CONTENT
+		     , M.SEND_DATE
+		FROM ROOMLIST L
+		JOIN ROOM R ON (L.ROOMLIST_NO = R.ROOM_NO)
+		JOIN EMPLOYEE E ON (L.EMP_NO = E.EMP_NO)
+		JOIN MESSAGE M ON (R.ROOM_NO = M.ROOM_NO)
+		JOIN ATTACHMENT_BOARD A ON (A.FOREIGN_NO = M.EMP_NO)
+		WHERE R.ROOM_STATUS = 'Y'
+		AND L.ROOMLIST_YN = 'Y'
+		AND SEND_DATE IN (SELECT DATE2
+		                 FROM (SELECT ROOM_NO, MAX(SEND_DATE) AS DATE2
+		                       FROM MESSAGE
+		                       GROUP BY ROOM_NO))
+		AND E.EMP_NO = #{empNo}
+		ORDER BY M.SEND_DATE DESC
+	</select>
+			<!-- SELECT R.ROOM_NO
+			 , L.EMP_NO
+			 , R.ROOM_NAME
+			 , R.CREATE_DATE
+			 , R.ROOM_STATUS 
+		FROM ROOMLIST L
+		JOIN ROOM R ON (L.ROOMLIST_NO = R.ROOM_NO)
+		WHERE R.ROOM_STATUS = 'Y' 
+		AND L.EMP_NO = #{empNo} -->
+	
+
+	<insert id="insertRoom" parameterType="Room">
+		INSERT INTO ROOM
+		VALUES (SEQ_ROOM_NO.NEXTVAL, #{roomName}, SYSDATE, DEFAULT, #{roomImg})
+		<!-- INSERT ALL
+		    WHEN ROWNUM = 1 THEN INTO ROOM(ROOM_NO, ROOM_NAME, CREATE_DATE, ROOM_STATUS) VALUES (SEQ_ROOM_NO.NEXTVAL, #{roomName},  SYSDATE, DEFAULT)
+		    WHEN ROWNUM = 1 THEN INTO MESSAGE(MESSAGE_NO, ROOM_NO, SEND_DATE, EMP_NO, MESSAGE_TYPE, MESSAGE_CONTENT) VALUES (SEQ_MESSAGE_NO.NEXTVAL, SEQ_ROOM_NO.CURRVAL,  SYSTIMESTAMP, #{empNo}, '1', NULL)
+			WHEN ROWNUM = 1 THEN INTO ROOMLIST(ROOMLIST_NO, EMP_NO) VALUES (SEQ_ROOM_NO.CURRVAL, #{empNo})
+		SELECT * FROM ROOM R JOIN MESSAGE M ON (M.ROOM_NO = R.ROOM_NO) -->
+	</insert>
+
+	<insert id="insertRoomList" parameterType="RoomList">
+		INSERT INTO ROOMLIST
+		VALUES (SEQ_ROOM_NO.CURRVAL, #{empNo}, DEFAULT)
+	</insert>
+
+    <select id="selectRoomNo" resultMap="roomListResultSet" parameterType="RoomList">
+		SELECT ROOMLIST_NO
+			 , EMP_NO 
+		FROM(SELECT RANK( )OVER(ORDER BY ROOMLIST_NO DESC) TOP
+		  		  , ROOMLIST_NO
+		  	  	  , EMP_NO 
+		     FROM ROOMLIST
+		     WHERE EMP_NO = #{empNo})
+		WHERE TOP = 1
+	</select>
+	
+	<delete id="deleteRoom" parameterType="RoomList">
+		DELETE FROM ROOMLIST
+		WHERE ROOMLIST_NO = #{roomNo}
+		AND EMP_NO = #{empNo}
+	</delete>
+	
+	<insert id="insertThema" parameterType="Thema">
+		INSERT INTO THEMA
+		VALUES (SEQ_THEMA_NO.NEXTVAL, #{themaColor}, #{empNo})
+	</insert>
+
+    <select id="selectThema" resultMap="themaResultSet" parameterType="Thema">
+		SELECT THEMA_COLOR 
+		FROM(SELECT RANK( )OVER(ORDER BY THEMA_NO DESC) TOP
+				  , THEMA_NO
+				  , THEMA_COLOR
+				  , EMP_NO 
+		     FROM THEMA
+		     WHERE EMP_NO = #{empNo})
+		WHERE TOP = 1
+	</select>
+
+	<select id="selectRoomMember" resultMap="roomListResultSet" parameterType="Roomlist">
+		SELECT L.ROOMLIST_NO
+			 , L.EMP_NO
+			 , E.EMP_NAME
+			 , P.POSITION_NAME
+			 , A.CHANGE_NAME 
+		FROM ROOMLIST L
+		JOIN EMPLOYEE E ON (L.EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN ATTACHMENT_BOARD A ON (E.EMP_NO = A.FOREIGN_NO)
+		WHERE L.ROOMLIST_NO = #{roomNo}
+		AND L.ROOMLIST_YN = 'Y'
+		<!-- AND L.EMP_NO ^= #{empNo} -->
+	</select>
+
+	<select id="selectMemberImg" resultMap="memberImgResultSet" parameterType="MemberImg">
+		SELECT E.EMP_NO
+		 	 , A.CHANGE_NAME 
+		FROM EMPLOYEE E 
+		JOIN ATTACHMENT_BOARD A ON (E.EMP_NO = A.FOREIGN_NO)
+		WHERE E.EMP_NO = #{empNo}
+	</select>
+	
+	<insert id="insertFile" parameterType="AttachmentMs">
+		INSERT INTO ATTACHMENT_MS
+		VALUES (SEQ_ATTACHMENT_MS_NO.NEXTVAL, SEQ_MESSAGE_NO.CURRVAL, #{originName}, #{changeName}, #{filePath}, SYSDATE, DEFAULT)
+	</insert>
+	
+	<select id="selectFile" resultMap="attachmentResultSet" parameterType="AttachmentMs">
+		SELECT ATTACHMENT_NO
+		     , MESSAGE_NO	
+		     , CHANGE_NAME
+		     , UPLOAD_DATE
+		FROM ATTACHMENT_MS
+		WHERE DELETE_YN = 'Y'
+		AND ATTACHMENT_NO = (SELECT MAX(TO_NUMBER(ATTACHMENT_NO))
+                             FROM ATTACHMENT_MS)
+	</select>
+	
+	<select id="selectAttachment" resultMap="attachmentResultSet" parameterType="AttachmentMs">
+		SELECT ATTACHMENT_NO
+		     , MESSAGE_NO	
+		     , ORIGIN_NAME
+		     , CHANGE_NAME
+		     , FILE_PATH
+		     , UPLOAD_DATE
+		     , DELETE_YN
+		FROM ATTACHMENT_MS
+		WHERE DELETE_YN = 'Y'
+		AND CHANGE_NAME = #{changeName}
+	</select>
+
+	<insert id="insertAddMember" parameterType="RoomList">
+		INSERT INTO ROOMLIST
+		VALUES (#{roomNo}, #{empNo}, DEFAULT)
+	</insert>
+
+</mapper>  

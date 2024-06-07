@@ -1,0 +1,1111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Approval">
+	
+ 	<resultMap type="CompanyDocumentBox" id="cDocumentListSet">
+	     <id property="cboxNo" column="CBOX_NO"/>
+	     <result property="depth" column="DEPTH"/> 
+	     <result property="path" column="PATH"/> 
+	     <result property="cboxName" column="CBOX_NAME"/>
+	     <result property="parentNo" column="PARENT_NO"/>
+	     <result property="childExist" column="CHILDEXIST"/>
+	</resultMap>
+
+	<resultMap type="DocumentForm" id="documentFormListSet">
+		<id property="formNo" column="FORM_NO"/>
+		<result property="cboxNo" column="CBOX_NO"/>
+		<result property="cboxName" column="CBOX_NAME"/>
+		<result property="formName" column="FORM_NAME"/>
+		<result property="formContent" column="FORM_CONTENT"/>
+		<result property="formTerm" column="FORM_TERM"/>
+		<result property="formDelegate" column="FORM_DELEGATE"/>
+		<result property="formUse" column="FORM_USE"/>
+	</resultMap>
+	
+	<resultMap type="ApprovalDocument" id="ApDocumentResultSet">
+		<id property="docNo" column="DOC_NO"/>
+		<result property="formNo" column="FORM_NO"/>
+		<result property="lineNo" column="LINE_NO"/>
+		<result property="docName" column="DOC_NAME"/>
+		<result property="docTitle" column="DOC_TITLE"/>
+		<result property="docContent" column="DOC_CONTENT"/>
+		<result property="docStatus" column="DOC_STATUS"/>
+		<result property="docDelete" column="DOC_DELETE"/>
+		<result property="enrollDate" column="ENROLL_DATE"/>
+		<result property="draftDeptNo" column="DRAFT_DEPT_NO"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="docUrgent" column="DOC_URGENT"/>
+		<result property="docDelegate" column="DOC_DELEGATE"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="draftOpinion" column="DRAFT_OPINION"/>
+		<result property="formName" column="FORM_NAME"/>
+		<result property="positionName" column="POSITION_NAME"/>
+	</resultMap>
+	
+	<resultMap type="BoxList" id="BoxListResultSet">
+		<id property="docNo" column="DOC_NO"/>
+		<result property="enrollDate" column="ENROLL_DATE"/>
+		<result property="formName" column="FORM_NAME"/>
+		<result property="docUrgent" column="DOC_URGENT"/>
+		<result property="docTitle" column="DOC_TITLE"/>
+		<result property="fileCount" column="FILE_COUNT"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="docStatus" column="DOC_STATUS"/>
+		<result property="appDate" column="APP_DATE"/>
+		<result property="completeDate" column="COMPLETE_DATE"/>
+		<result property="perKind" column="PER_KIND"/>
+		<result property="num" column="NUM"/>
+	</resultMap>
+	
+	<resultMap type="MostUseForm" id="MostUseFormResultSet">
+		<result property="formNo" column="FORM_NO"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="formName" column="FORM_NAME"/>
+	</resultMap>
+	
+	<resultMap type="LoginUser" id="LineUserResultSet">
+	     <id property="empNo" column="EMP_NO"/>
+	     <result property="empPwd" column="EMP_PWD"/> 
+	     <result property="empName" column="EMP_NAME"/>
+	     <result property="entryDate" column="ENTRY_DATE"/>
+	     <result property="empEmail" column="EMP_EMAIL"/>
+	     <result property="phone" column="PHONE"/>
+	     <result property="zipCode" column="ZIPCODE"/>
+	     <result property="address" column="ADDRESS"/>
+	     <result property="empStatus" column="EMP_STATUS"/>
+	     <result property="dutyNo" column="DUTY_NO"/>
+	     <result property="dutyName" column="DUTY_NAME"/>
+	     <result property="positionNo" column="POSITION_NO"/>
+	     <result property="deptNo" column="DEPT_NO"/>
+	     <result property="positionName" column="POSITION_NAME"/>
+	     <result property="deptName" column="DEPT_NAME"/>
+	     <result property="photoName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<resultMap type="ApprovalLine" id="ApprovalLineResultSet">
+		<id property="lineNo" column="LINE_NO"/>
+		<result property="lineName" column="LINE_NAME"/>
+		<result property="lineSave" column="LINE_SAVE"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="lineTurn" column="LINE_TURN"/>
+	</resultMap>
+	
+	<resultMap type="ApprovalStep" id="ApprovalStepResultSet">
+		<id property="stepNo" column="STEP_NO"/>
+		<result property="lineNo" column="LINE_NO"/>
+		<result property="stepNum" column="STEP_NUM"/>
+		<result property="stepType" column="STEP_TYPE"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="agreeMethod" column="AGREEMETHOD"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="positionName" column="POSITION_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</resultMap>
+	
+	<resultMap type="AttachmentApp" id="AttachmentAppResultSet">
+		<id property="attachmentNo" column="ATTACHMENT_NO"/>
+		<result property="docNo" column="DOC_NO"/>
+		<result property="filePath" column="FILE_PATH"/>
+		<result property="fileSize" column="FILE_SIZE"/>
+		<result property="originName" column="ORIGIN_NAME"/>
+		<result property="changeName" column="CHANGE_NAME"/>
+	</resultMap>
+	
+	<resultMap type="ApprovalVo" id="ApprovalVoResultSet">
+		<id property="appNo" column="APP_NO"/>
+		<result property="docNo" column="DOC_NO"/>
+		<result property="appType" column="APP_TYPE"/>
+		<result property="appResult" column="APP_RESULT"/>
+		<result property="appOpinion" column="APP_OPINION"/>
+		<result property="appDate" column="APP_DATE"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="absenceStatus" column="ABSENCE_STATUS"/>
+		<result property="autEmpNo" column="AUT_EMP_NO"/>
+		<result property="lineNo" column="LINE_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="positionName" column="POSITION_NAME"/>
+		<result property="autEmpName" column="AUT_EMP_NAME"/>
+		<result property="autDeptName" column="AUT_DEPT_NAME"/>
+		<result property="autPositionName" column="AUT_POSITION_NAME"/>
+	</resultMap>
+	
+	<resultMap type="Peruse" id="PeruseResultSet">
+		<id property="perNo" column="PER_NO"/>
+		<result property="docNo" column="DOC_NO"/>
+		<result property="perKind" column="PER_KIND"/>
+		<result property="perType" column="PER_TYPE"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="deptNo" column="DEPT_NO"/>
+		<result property="empName" column="EMP_NAME"/>
+		<result property="positionName" column="POSITION_NAME"/>
+		<result property="readStatus" column="READ_STATUS"/>
+	</resultMap>
+	
+	<resultMap type="Authority" id="AuthorityResultSet">
+		<id property="autNo" column="AUT_NO"/>
+		<result property="docNo" column="DOC_NO"/>
+		<result property="startDate" column="START_DATE"/>
+		<result property="endDate" column="END_DATE"/>
+		<result property="absenceReason" column="ABSENCE_REASON"/>
+		<result property="autStatus" column="AUT_STATUS"/>
+		<result property="rejectReason" column="REJECT_REASON"/>
+		<result property="autEmpNo" column="AUT_EMP_NO"/>
+		<result property="empNo" column="EMP_NO"/>
+		<result property="autEmpName" column="AUT_EMP_NAME"/>
+		<result property="positionName" column="POSITION_NAME"/>
+	</resultMap>
+	
+	<select id="selectCompanyDocList" resultMap="cDocumentListSet">
+		SELECT CBOX_NO, DEPTH, PATH, CBOX_NAME, PARENT_NO, CHILDEXIST
+		FROM COMPANY_DOCUMENT_BOX
+	</select>
+	
+	<select id="selectDocumentFormList" parameterType="String" resultMap="documentFormListSet">
+		SELECT FORM_NO, D.CBOX_NO, CBOX_NAME, FORM_NAME, FORM_CONTENT, FORM_TERM, FORM_DELEGATE, FORM_USE
+		FROM DOCUMENT_FORM D
+		JOIN COMPANY_DOCUMENT_BOX C ON (D.CBOX_NO = C.CBOX_NO)
+		WHERE D.CBOX_NO = #{cboxNo} AND FORM_USE = 1 AND FORM_NO != 25
+	</select>
+	
+	<select id="selectDocumentFormAdmin" parameterType="String" resultMap="documentFormListSet">
+		SELECT FORM_NO, D.CBOX_NO, CBOX_NAME, FORM_NAME, FORM_CONTENT, FORM_TERM, FORM_DELEGATE, FORM_USE
+		FROM DOCUMENT_FORM D
+		JOIN COMPANY_DOCUMENT_BOX C ON (D.CBOX_NO = C.CBOX_NO)
+		WHERE D.CBOX_NO = #{cboxNo} AND FORM_NO != 25
+	</select>
+	
+	<select id="selectOneDocumentForm" parameterType="String" resultMap="documentFormListSet">
+		SELECT FORM_NO, D.CBOX_NO, CBOX_NAME, FORM_NAME, FORM_CONTENT, FORM_TERM, FORM_DELEGATE, FORM_USE
+		FROM DOCUMENT_FORM D
+		JOIN COMPANY_DOCUMENT_BOX C ON (D.CBOX_NO = C.CBOX_NO)
+		WHERE FORM_NO = #{formNo}
+	</select>
+	
+	<insert id="insertApprovalForm" parameterType="ApprovalDocument">
+		<selectKey keyProperty="docNo" order="BEFORE" resultType="String">
+			SELECT SEQ_DOC_NO.NEXTVAL FROM DUAL
+		</selectKey>	
+		INSERT INTO APPROVAL_DOCUMENT
+		VALUES (#{docNo}, #{formNo}, #{lineNo}, (SELECT ZBF_GET_DOC_NAME('now') from DUAL), #{docTitle}, #{docContent}, #{docStatus}, 0, #{enrollDate}, #{draftDeptNo}, #{docUrgent}, #{docDelegate}, #{empNo}, #{draftOpinion})
+	</insert>
+	
+	<select id="selectTempBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE,
+			   FILE_COUNT, EMP_NAME, DOC_STATUS
+		FROM (
+				SELECT AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, COUNT(AA.DOC_NO)AS FILE_COUNT, EMP_NAME, DOC_STATUS
+				FROM APPROVAL_DOCUMENT AD
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE AD.EMP_NO = #{empNo} AND DOC_STATUS = 0
+				GROUP BY AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, EMP_NAME, DOC_STATUS
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectDraftBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, 
+			   FILE_COUNT, EMP_NAME, DOC_STATUS
+		FROM(
+				SELECT AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, 
+					  	 COUNT(AA.DOC_NO)AS FILE_COUNT, EMP_NAME, DOC_STATUS
+				FROM APPROVAL_DOCUMENT AD
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE AD.EMP_NO = #{empNo} AND DOC_STATUS != 0
+				GROUP BY AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, EMP_NAME, DOC_STATUS
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+
+	<select id="selectListCount" parameterType="ListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL_DOCUMENT
+		WHERE EMP_NO = #{empNo} AND DOC_STATUS = #{status}
+	</select>
+	
+	<select id="selectOneApprovalDocument" parameterType="String" resultMap="ApDocumentResultSet">
+		SELECT DOC_NO, AD.FORM_NO, LINE_NO, DOC_NAME, DOC_TITLE, DOC_CONTENT, 
+       		   DOC_STATUS, DOC_DELETE, ENROLL_DATE, DRAFT_DEPT_NO, DEPT_NAME, 
+       	       DOC_URGENT, DOC_DELEGATE, AD.EMP_NO, EMP_NAME, DRAFT_OPINION, 
+       	       FORM_NAME, POSITION_NAME
+		FROM APPROVAL_DOCUMENT AD
+		JOIN DEPARTMENT D ON (AD.DRAFT_DEPT_NO = D.DEPT_NO)
+		JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+		WHERE DOC_NO = #{docNo}
+	</select>
+	
+	<insert id="insertMostUseForm" parameterType="MostUseForm">
+		INSERT INTO MOSTUSE_FORM
+		VALUES (#{formNo}, #{empNo})
+	</insert>
+	
+	<select id="mostUseFormCheck" parameterType="MostUseForm" resultType="_int">
+		SELECT COUNT(*)
+		FROM MOSTUSE_FORM
+		WHERE FORM_NO = #{formNo} AND EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectMostUseForm" parameterType="String" resultMap="MostUseFormResultSet">
+		SELECT MF.FORM_NO, EMP_NO, FORM_NAME
+		FROM MOSTUSE_FORM MF
+		JOIN DOCUMENT_FORM DF ON (MF.FORM_NO = DF.FORM_NO)
+		WHERE EMP_NO = #{empNo}
+	</select>
+	
+	<delete id="deleteMostUseForm" parameterType="MostUseForm">
+		DELETE FROM MOSTUSE_FORM
+		WHERE FORM_NO = #{formNo} AND EMP_NO = #{empNo}
+	</delete>
+	
+	<select id="selectEmployeeInfo" parameterType="String" resultMap="LineUserResultSet">
+		SELECT E.EMP_NO
+		     , E.EMP_PWD
+		     , E.EMP_NAME
+		     , E.ENTRY_DATE
+		     , E.EMP_EMAIL
+		     , E.PHONE
+		     , E.ZIPCODE
+		     , E.ADDRESS
+		     , E.EMP_STATUS
+		     , DUTY_NO
+		     , DUTY_NAME
+		     , E.POSITION_NO
+		     , E.DEPT_NO
+		     , P.POSITION_NAME
+		     , D.DEPT_NAME
+		     , A.CHANGE_NAME
+		FROM EMPLOYEE E
+		JOIN POSITION P ON (P.POSITION_NO = E.POSITION_NO)
+		JOIN DEPARTMENT D ON (D.DEPT_NO = E.DEPT_NO)
+		JOIN ATTACHMENT_BOARD A ON (E.EMP_NO = A.FOREIGN_NO)
+		JOIN DUTY USING (DUTY_NO)
+		WHERE E.EMP_NO = #{empNo}
+	</select>
+	
+	<insert id="insertApprovalLine" parameterType="ApprovalLine">
+		<selectKey keyProperty="lineNo" order="BEFORE" resultType="String">
+			SELECT SEQ_LINE_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO APPROVAL_LINE
+		VALUES(#{lineNo}, NULL, DEFAULT, #{empNo}, DEFAULT)
+	</insert>
+	
+	<insert id="insertApprovalStep" parameterType="ApprovalStep">
+		<selectKey keyProperty="stepNo" order="BEFORE" resultType="String">
+			SELECT SEQ_STEP_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO APPROVAL_STEP (STEP_NO, LINE_NO, STEP_NUM, STEP_TYPE, EMP_NO, AGREEMETHOD)
+		VALUES (#{stepNo}, #{lineNo}, #{stepNum}, #{stepType}, #{empNo}, NULL)
+	</insert>
+	
+	<insert id="insertAttachmentApp" parameterType="AttachmentApp">
+		<selectKey keyProperty="attachmentNo" order="BEFORE" resultType="String">
+			SELECT SEQ_ATTACHMENT_AP.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO ATTACHMENT_APP(ATTACHMENT_NO, DOC_NO, FILE_PATH, FILE_SIZE, ORIGIN_NAME, CHANGE_NAME) 
+		VALUES (#{attachmentNo}, #{docNo}, #{filePath}, #{fileSize}, #{originName}, #{changeName})
+	</insert>
+	
+	<select id="selectListCountWithoutStatus" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL_DOCUMENT
+		WHERE EMP_NO = #{empNo} AND DOC_STATUS != 0
+	</select>
+	
+	<select id="selectApprovalStepList" parameterType="String" resultMap="ApprovalStepResultSet">
+		SELECT STEP_NO, STEP.LINE_NO, STEP_NUM, STEP_TYPE, STEP.EMP_NO, 
+			   AGREEMETHOD, EMP_NAME, POSITION_NAME, DEPT_NAME
+		FROM APPROVAL_STEP STEP
+		JOIN APPROVAL_DOCUMENT AD ON (AD.LINE_NO = STEP.LINE_NO)
+		JOIN EMPLOYEE E ON (STEP.EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+		WHERE DOC_NO = #{docNo}
+		ORDER BY STEP_NUM ASC
+	</select>
+	
+	<select id="selectAttachmentAppList" parameterType="String" resultMap="AttachmentAppResultSet">
+		SELECT ATTACHMENT_NO, DOC_NO, FILE_PATH, FILE_SIZE, ORIGIN_NAME, CHANGE_NAME
+		FROM ATTACHMENT_APP
+		WHERE DOC_NO = #{docNo}
+	</select>
+	
+	<select id="selectOneAttachmentApp" parameterType="String" resultMap="AttachmentAppResultSet">
+		SELECT ATTACHMENT_NO, DOC_NO, FILE_PATH, FILE_SIZE, ORIGIN_NAME, CHANGE_NAME
+		FROM ATTACHMENT_APP
+		WHERE ATTACHMENT_NO = #{fileNo}
+	</select>
+	
+	<select id="selectAppWaitListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(ROWNUM)   
+		FROM(SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_STATUS != 0 AND DOC_STATUS != 2 AND STEP.EMP_NO = #{empNo}
+			 GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			 UNION 
+			 SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE (LINE.LINE_TURN = STEP.STEP_NUM 
+					AND DOC_STATUS != 0 
+					AND DOC_STATUS != 2 
+	        		AND STEP.EMP_NO = (
+	        							SELECT EMP_NO 
+	        							FROM AUTHORITY 
+	        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1]]>
+	        								  AND AUT_STATUS = 2 
+	       									  AND AUT_EMP_NO = #{empNo}))
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			UNION
+			SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT,COUNT(AA.DOC_NO) AS FILE_COUNT, EMP_NAME, DOC_STATUS 
+			FROM APPROVAL_DOCUMENT AD
+			JOIN PERUSE PU ON (AD.DOC_NO = PU.DOC_NO)
+			JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			WHERE PER_KIND = 2 AND PU.EMP_NO = #{empNo} AND DOC_STATUS != 0 AND READ_STATUS IS NULL
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectAppPlanListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM (
+			SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				<![CDATA[WHERE LINE.LINE_TURN < STEP.STEP_NUM]]>
+					 AND DOC_STATUS != 0 
+					 AND DOC_STATUS != 2 
+					 AND STEP.EMP_NO = #{empNo}
+				GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+		        JOIN AUTHORITY A ON (STEP.EMP_NO = A.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				<![CDATA[WHERE (LINE.LINE_TURN < STEP.STEP_NUM]]>
+						AND DOC_STATUS != 0 
+						AND DOC_STATUS != 2 
+		        		AND STEP.EMP_NO = (
+		        							SELECT EMP_NO 
+		        							FROM AUTHORITY 
+		        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+		        								  AND AUT_STATUS = 2 
+		       									  AND AUT_EMP_NO = #{empNo}))
+		       	
+		       	GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+		       	ORDER BY ENROLL_DATE DESC)
+	</select>
+	<select id="selectAppPlanBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME,
+			   DOC_URGENT, FILE_COUNT, EMP_NAME, DOC_STATUS
+		FROM (
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				<![CDATA[WHERE LINE.LINE_TURN < STEP.STEP_NUM]]>
+					 AND DOC_STATUS != 0 
+					 AND DOC_STATUS != 2 
+					 AND STEP.EMP_NO = #{empNo}
+				GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+		        JOIN AUTHORITY A ON (STEP.EMP_NO = A.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				<![CDATA[WHERE (LINE.LINE_TURN < STEP.STEP_NUM]]>
+						AND DOC_STATUS != 0 
+						AND DOC_STATUS != 2 
+		        		AND STEP.EMP_NO = (
+		        							SELECT EMP_NO 
+		        							FROM AUTHORITY 
+		        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+		        								  AND AUT_STATUS = 2 
+		       									  AND AUT_EMP_NO = #{empNo}))
+		       	
+		       	GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+		       	ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectAppWaitBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME,
+			   DOC_URGENT, FILE_COUNT, EMP_NAME, DOC_STATUS
+		FROM (
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_STATUS != 0 AND DOC_STATUS != 2 AND STEP.EMP_NO = #{empNo}
+				GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS  
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+		        JOIN AUTHORITY A ON (STEP.EMP_NO = A.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE (LINE.LINE_TURN = STEP.STEP_NUM 
+						AND DOC_STATUS != 0 
+						AND DOC_STATUS != 2 
+		        		AND STEP.EMP_NO = (
+		        							SELECT EMP_NO 
+		        							FROM AUTHORITY 
+		        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+		        								  AND AUT_STATUS = 2 
+		       									  AND AUT_EMP_NO = #{empNo}))
+		       	
+		       	GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+		       	UNION
+		       	SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT,COUNT(AA.DOC_NO) AS FILE_COUNT, EMP_NAME, DOC_STATUS 
+				FROM APPROVAL_DOCUMENT AD
+				JOIN PERUSE PU ON (AD.DOC_NO = PU.DOC_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE PER_KIND = 2 AND PU.EMP_NO = #{empNo} AND DOC_STATUS != 0 AND READ_STATUS IS NULL
+				GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<insert id="insertApproval" parameterType="ApprovalVo">
+		INSERT INTO APPROVAL
+		VALUES(SEQ_APP_NO.NEXTVAL, #{docNo}, 1, #{appResult}, #{appOpinion}, #{appDate}, #{empNo}, #{absenceStatus}, #{autEmpNo})
+	</insert>
+	
+	<update id="updateLineTurn" parameterType="String">
+		UPDATE APPROVAL_LINE 
+		SET LINE_TURN  = (SELECT LINE_TURN FROM APPROVAL_LINE WHERE LINE_NO = #{lineNo}) + 1 
+		WHERE LINE_NO = #{lineNo}
+	</update>
+	
+	<update id="updateDocRejectStatus" parameterType="String">
+		UPDATE APPROVAL_DOCUMENT
+		SET DOC_STATUS = 2
+		WHERE DOC_NO = #{docNo}
+	</update>
+	
+	<select id="selectLineTurn" parameterType="String" resultType="_int">
+		SELECT LINE_TURN 
+		FROM APPROVAL_LINE 
+		WHERE LINE_NO = #{lineNo}
+	</select>
+	
+	<select id="selectStepCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM APPROVAL_STEP
+		WHERE LINE_NO = #{lineNo}
+	</select>
+	
+	<update id="updateDocCompleteStatus" parameterType="String">
+		UPDATE APPROVAL_DOCUMENT
+		SET DOC_STATUS = 3
+		WHERE DOC_NO = #{docNo}
+	</update>
+	
+	<select id="selectApprovalVoList" parameterType="String" resultMap="ApprovalVoResultSet">
+		SELECT APP_NO, DOC_NO, APP_TYPE, APP_RESULT, APP_OPINION, APP_DATE, 
+			   A.EMP_NO, ABSENCE_STATUS, AUT_EMP_NO, E.EMP_NAME,
+               D.DEPT_NAME, P.POSITION_NAME, EM.EMP_NAME AS AUT_EMP_NAME,
+               DE.DEPT_NAME AS AUT_DEPT_NAME, PO.POSITION_NAME AS AUT_POSITION_NAME
+		FROM APPROVAL A
+		JOIN EMPLOYEE E ON (A.EMP_NO = E.EMP_NO)
+        LEFT JOIN EMPLOYEE EM ON (A.AUT_EMP_NO = EM.EMP_NO)
+		JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+        LEFT JOIN DEPARTMENT DE ON (EM.DEPT_NO = DE.DEPT_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+        LEFT JOIN POSITION PO ON (EM.POSITION_NO = PO.POSITION_NO) 
+		WHERE DOC_NO = #{docNo}
+		ORDER BY APP_DATE ASC	
+	</select>
+	
+	<select id="selectOneApprovalLine" parameterType="String" resultMap="ApprovalLineResultSet">
+		SELECT AL.LINE_NO, LINE_NAME, LINE_SAVE, AL.EMP_NO, LINE_TURN
+		FROM APPROVAL_LINE AL
+		JOIN APPROVAL_DOCUMENT AD ON(AL.LINE_NO = AD.LINE_NO)
+		WHERE DOC_NO = #{docNo}
+	</select>
+	
+	<select id="selectCurrentLineTurnEmp" parameterType="String" resultType="String">
+		SELECT STEP.EMP_NO
+		FROM APPROVAL_STEP STEP
+		JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+		JOIN APPROVAL_DOCUMENT AD ON(LINE.LINE_NO = AD.LINE_NO)
+		WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_NO = #{docNo}
+	</select>
+	
+	<select id="selectAppProceedListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM(
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			           DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 1 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 1 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectAppProceedBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+		FROM (
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 1 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 1 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectAppCompleteListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM (
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   		   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 3 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 3 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectAppCompleteBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+		FROM(
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   		   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 3 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 3 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectCompleteTime" parameterType="String" resultType="String">
+		SELECT APP_DATE
+		FROM(
+				SELECT APP_DATE
+				FROM APPROVAL A
+				JOIN APPROVAL_DOCUMENT AD ON (A.DOC_NO = AD.DOC_NO)
+				JOIN APPROVAL_LINE LINE ON (AD.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_STEP STEP ON (LINE.LINE_NO = STEP.LINE_NO)
+				WHERE STEP.STEP_NUM = (LINE.LINE_TURN - 1) AND AD.DOC_NO = #{docNo} 
+				ORDER BY APP_DATE DESC)
+		WHERE ROWNUM = 1
+	</select>
+	
+	<select id="selectAppRejectListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM (
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 2 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 2 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3
+				ORDER BY ENROLL_DATE DESC
+		)
+	</select>
+	
+	<select id="selectAppRejectBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+		FROM(		
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 2 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 2 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectTopThreeDraftList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM, DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   FORM_NAME, DOC_URGENT, FILE_COUNT, 
+               EMP_NAME, DOC_STATUS    
+		FROM(SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_STATUS != 0 AND DOC_STATUS != 2 AND STEP.EMP_NO = #{empNo}
+			 GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			 UNION 
+			 SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE (LINE.LINE_TURN = STEP.STEP_NUM 
+					AND DOC_STATUS != 0 
+					AND DOC_STATUS != 2 
+	        		AND STEP.EMP_NO = (
+	        							SELECT EMP_NO 
+	        							FROM AUTHORITY 
+	        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+	        								  AND AUT_STATUS = 2 
+	       									  AND AUT_EMP_NO = #{empNo}))
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			UNION
+			SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT,COUNT(AA.DOC_NO) AS FILE_COUNT, EMP_NAME, DOC_STATUS 
+			FROM APPROVAL_DOCUMENT AD
+			JOIN PERUSE PU ON (AD.DOC_NO = PU.DOC_NO)
+			JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			WHERE PER_KIND = 2 AND PU.EMP_NO = #{empNo} AND DOC_STATUS != 0 AND READ_STATUS IS NULL
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			ORDER BY ENROLL_DATE DESC)
+		<![CDATA[WHERE ROWNUM <= 3]]>
+	</select>
+	
+	<select id="selectTopThreeProceedList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, 
+			   DOC_TITLE, FILE_COUNT, EMP_NAME, DOC_STATUS
+		FROM (
+				SELECT AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, 
+			  		   COUNT(AA.DOC_NO)AS FILE_COUNT, EMP_NAME, DOC_STATUS
+				FROM APPROVAL_DOCUMENT AD
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				WHERE AD.EMP_NO = #{empNo} AND DOC_STATUS != 0
+				GROUP BY AD.DOC_NO, ENROLL_DATE, FORM_NAME, DOC_URGENT, DOC_TITLE, EMP_NAME, DOC_STATUS
+				ORDER BY ENROLL_DATE DESC )
+		<![CDATA[WHERE ROWNUM <= 3]]>
+	</select>
+	
+	<select id="selectTopThreeCompleteList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+		FROM (
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			  		   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 3 AND AD.EMP_NO = #{empNo}
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 3 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				ORDER BY ENROLL_DATE DESC)
+		<![CDATA[WHERE ROWNUM <= 3]]>
+	</select>
+	
+	<insert id="insertPeruseList" parameterType="Peruse">
+		INSERT INTO PERUSE 
+		VALUES (SEQ_PER_NO.NEXTVAL, #{docNo}, #{perKind}, #{perType}, #{empNo}, NULL, NULL)
+	</insert>
+	
+	<select id="selectAppRefListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(P.EMP_NO)
+		FROM PERUSE P
+		JOIN APPROVAL_DOCUMENT AD ON (P.DOC_NO = AD.DOC_NO)
+		WHERE P.EMP_NO = #{empNo} AND (P.PER_KIND = 1 OR (P.PER_KIND = 0 AND AD.DOC_STATUS = 3))
+	</select>
+	 
+	<select id="selectAppRefBoxList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE,
+				FORM_NAME, DOC_URGENT, FILE_COUNT, EMP_NAME, DOC_STATUS, PER_KIND
+		FROM (
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+		       		   FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+		               EMP_NAME, DOC_STATUS,PER_KIND  
+				FROM APPROVAL_DOCUMENT AD 
+				JOIN PERUSE P ON (AD.DOC_NO = P.DOC_NO)
+				LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				WHERE P.EMP_NO = #{empNo} AND (PER_KIND = 1 OR (PER_KIND = 0 AND DOC_STATUS = 3))
+				GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS,PER_KIND
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="searchFormName" parameterType="String" resultMap="documentFormListSet">
+		SELECT FORM_NO, CBOX_NO, FORM_NAME, FORM_CONTENT, 
+			   FORM_TERM, FORM_DELEGATE, FORM_USE
+		FROM DOCUMENT_FORM
+		WHERE FORM_NAME LIKE '%' || #{formTitle} || '%'
+	</select> 
+	
+	<insert id="insertAuthority" parameterType="Authority">
+		INSERT INTO AUTHORITY(AUT_NO, DOC_NO, START_DATE, END_DATE, ABSENCE_REASON, AUT_STATUS, REJECT_REASON, AUT_EMP_NO, EMP_NO)
+		VALUES (SEQ_AUT_NO.NEXTVAL, #{docNo}, TO_DATE(#{startDate},'yyyy/MM/dd'), TO_DATE(#{endDate},'yyyy/MM/dd'), #{absenceReason}, 0, NULL, #{autEmpNo}, #{empNo})
+	</insert>
+	
+	<select id="selectPeruseList" parameterType="String" resultMap="PeruseResultSet">
+		SELECT PER_NO, DOC_NO, PER_KIND, PER_TYPE, READ_STATUS, PE.EMP_NO, PE.DEPT_NO, EMP_NAME, POSITION_NAME
+		FROM PERUSE PE
+		JOIN EMPLOYEE E ON (PE.EMP_NO = E.EMP_NO)
+		JOIN POSITION PO ON (E.POSITION_NO = PO.POSITION_NO)
+		WHERE DOC_NO = #{docNo}
+	</select>
+	
+	<select id="selectAuthorityListCount" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM AUTHORITY
+		WHERE EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectAuthorityList" parameterType="String" resultMap="AuthorityResultSet">
+		SELECT AUT_NO, DOC_NO, TO_CHAR(START_DATE, 'yyyy/MM/dd') AS START_DATE
+		     , TO_CHAR(END_DATE, 'yyyy/MM/dd') AS END_DATE, AUT_EMP_NO
+			 , ABSENCE_REASON, AUT_STATUS, E.EMP_NAME AS AUT_EMP_NAME, POSITION_NAME
+		FROM AUTHORITY A
+		JOIN EMPLOYEE E ON (A.AUT_EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		WHERE A.EMP_NO = #{empNo}
+		ORDER BY TO_NUMBER(AUT_NO) DESC
+	</select>
+	
+	<update id="updateAutRejectStatus" parameterType="String">
+		UPDATE AUTHORITY
+		SET AUT_STATUS = 1
+		WHERE DOC_NO = #{docNo}
+	</update>
+	
+	<update id="updateAutCompleteStatus" parameterType="String">
+		UPDATE AUTHORITY
+		SET AUT_STATUS = 2
+		WHERE DOC_NO = #{docNo}
+	</update>
+	
+	<select id="selectAuthorityEmp" parameterType="String" resultType="String">
+		SELECT AUT_EMP_NO
+		FROM AUTHORITY
+		<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+			AND AUT_STATUS = 2 
+			AND EMP_NO = (
+							SELECT STEP.EMP_NO
+							FROM APPROVAL_STEP STEP
+							JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+							JOIN APPROVAL_DOCUMENT AD ON(LINE.LINE_NO = AD.LINE_NO)
+							WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_NO = #{docNo})
+	</select>
+	
+	<update id="updatePeruse" parameterType="Peruse">
+		UPDATE PERUSE
+		SET READ_STATUS = 1
+		WHERE PER_NO = #{perNo}
+	</update>
+	
+	<update id="updateDelegateLineTurn" parameterType="String">
+		UPDATE APPROVAL_LINE
+		SET LINE_TURN = (SELECT COUNT(*) FROM APPROVAL_STEP WHERE LINE_NO = #{lineNo})
+		WHERE LINE_NO = #{lineNo}
+	</update>
+	
+	<select id="selectApprovalLine" parameterType="String" resultMap="ApprovalLineResultSet">
+		SELECT AL.LINE_NO, LINE_NAME, LINE_SAVE, AL.EMP_NO, LINE_TURN
+		FROM APPROVAL_LINE AL
+		JOIN APPROVAL_DOCUMENT AD ON(AL.LINE_NO = AD.LINE_NO)
+		WHERE DOC_NO = #{docNo}
+	</select>
+	
+	<update id="updateDelegateLine" parameterType="String">
+		UPDATE APPROVAL_LINE 
+		SET LINE_TURN  = (SELECT COUNT(*) FROM APPROVAL_STEP WHERE LINE_NO = #{lineNo})  
+		WHERE LINE_NO = #{lineNo}
+	</update>
+	
+	<select id="selectNotApprovalEmp" parameterType="String" resultType="String">
+		SELECT STEP.EMP_NO
+		FROM APPROVAL_STEP STEP
+		JOIN APPROVAL_DOCUMENT AD ON (AD.LINE_NO = STEP.LINE_NO)
+		WHERE AD.DOC_NO = #{docNo} AND STEP_NUM != 0 AND STEP.EMP_NO NOT IN ( SELECT EMP_NO
+		FROM APPROVAL
+		WHERE DOC_NO = #{docNo} )
+	</select>
+	
+	<select id="selectTopFiveDraftList" parameterType="String" resultMap="BoxListResultSet">
+		SELECT ROWNUM, DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   FORM_NAME, DOC_URGENT, FILE_COUNT, 
+               EMP_NAME, DOC_STATUS    
+		FROM(SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE LINE.LINE_TURN = STEP.STEP_NUM AND DOC_STATUS != 0 AND DOC_STATUS != 2 AND STEP.EMP_NO = #{empNo}
+			 GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			 UNION 
+			 SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, 
+       		   	    FORM_NAME, DOC_URGENT, COUNT(AA.DOC_NO)AS FILE_COUNT, 
+               		EMP_NAME, DOC_STATUS  
+			 FROM APPROVAL_STEP STEP
+			 JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+			 JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+			 JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			 JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			 LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			 WHERE (LINE.LINE_TURN = STEP.STEP_NUM 
+					AND DOC_STATUS != 0 
+					AND DOC_STATUS != 2 
+	        		AND STEP.EMP_NO = (
+	        							SELECT EMP_NO 
+	        							FROM AUTHORITY 
+	        							<![CDATA[WHERE START_DATE <= SYSDATE AND SYSDATE <= END_DATE + 1 ]]>
+	        								  AND AUT_STATUS = 2 
+	       									  AND AUT_EMP_NO = #{empNo}))
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			UNION
+			SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT,COUNT(AA.DOC_NO) AS FILE_COUNT, EMP_NAME, DOC_STATUS 
+			FROM APPROVAL_DOCUMENT AD
+			JOIN PERUSE PU ON (AD.DOC_NO = PU.DOC_NO)
+			JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+			JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+			LEFT JOIN ATTACHMENT_APP AA ON (AA.DOC_NO = AD.DOC_NO)
+			WHERE PER_KIND = 2 AND PU.EMP_NO = #{empNo} AND DOC_STATUS != 0 AND READ_STATUS IS NULL
+			GROUP BY AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, DOC_URGENT, EMP_NAME, DOC_STATUS
+			ORDER BY ENROLL_DATE DESC)
+		<![CDATA[WHERE ROWNUM <= 5]]>
+	</select>
+	
+	<select id="selectSearchCompleteListCount" parameterType="SearchCondition" resultType="_int">
+		SELECT COUNT(*)
+		FROM (
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   		   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 3 AND AD.EMP_NO = #{empNo}
+				<if test="title != null">
+					AND DOC_TITLE LIKE '%' || #{title} || '%'
+				</if>
+				<if test="writer != null">
+					AND EMP_NAME = #{writer}
+				</if>
+				<if test="form != null">
+					AND FORM_NAME LIKE '%' || #{form} || '%'
+				</if>
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 3 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				<if test="title != null">
+					AND DOC_TITLE LIKE '%' || #{title} || '%'
+				</if>
+				<if test="writer != null">
+					AND EMP_NAME = #{writer}
+				</if>
+				<if test="form != null">
+					AND FORM_NAME LIKE '%' || #{form} || '%'
+				</if>
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectSearchCompleteBoxList" parameterType="SearchCondition" resultMap="BoxListResultSet">
+		SELECT ROWNUM AS NUM, DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+		FROM(
+				SELECT DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+			   		   DOC_URGENT, EMP_NAME, DOC_STATUS, ENROLL_DATE AS APP_DATE
+				FROM APPROVAL_DOCUMENT AD
+				JOIN EMPLOYEE E ON(AD.EMP_NO = E.EMP_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				WHERE DOC_STATUS = 3 AND AD.EMP_NO = #{empNo}
+				<if test="title != null">
+					AND DOC_TITLE LIKE '%' || #{title} || '%'
+				</if>
+				<if test="writer != null">
+					AND EMP_NAME = #{writer}
+				</if>
+				<if test="form != null">
+					AND FORM_NAME LIKE '%' || #{form} || '%'
+				</if>
+				UNION
+				SELECT AD.DOC_NO, DOC_TITLE, ENROLL_DATE, FORM_NAME, 
+					   DOC_URGENT, EMP_NAME, DOC_STATUS, APP_DATE
+				FROM APPROVAL_STEP STEP
+				JOIN APPROVAL_LINE LINE ON (STEP.LINE_NO = LINE.LINE_NO)
+				JOIN APPROVAL_DOCUMENT AD ON (LINE.LINE_NO = AD.LINE_NO)
+				JOIN DOCUMENT_FORM DF ON (AD.FORM_NO = DF.FORM_NO)
+				JOIN EMPLOYEE E ON (AD.EMP_NO = E.EMP_NO)
+				JOIN APPROVAL A ON (A.EMP_NO = STEP.EMP_NO AND A.DOC_NO = AD.DOC_NO)
+				WHERE DOC_STATUS = 3 AND STEP_NUM != 0 AND STEP.EMP_NO = #{empNo} AND APP_RESULT != 3 AND APP_RESULT != 4
+				<if test="title != null">
+					AND DOC_TITLE LIKE '%' || #{title} || '%'
+				</if>
+				<if test="writer != null">
+					AND EMP_NAME = #{writer}
+				</if>
+				<if test="form != null">
+					AND FORM_NAME LIKE '%' || #{form} || '%'
+				</if>
+				ORDER BY ENROLL_DATE DESC)
+	</select>
+	
+	<select id="selectSaveLineList" parameterType="String" resultMap="ApprovalLineResultSet">
+		SELECT LINE_NO, LINE_NAME, LINE_SAVE, EMP_NO, LINE_TURN
+		FROM APPROVAL_LINE
+		WHERE LINE_SAVE = 1 AND EMP_NO = #{empNo}
+	</select>
+	
+	<select id="selectOneMyLine" parameterType="String" resultMap="ApprovalStepResultSet">
+		SELECT STEP_NO, STEP.LINE_NO, STEP_NUM, STEP_TYPE, STEP.EMP_NO, 
+			   AGREEMETHOD, EMP_NAME, POSITION_NAME, DEPT_NAME
+		FROM APPROVAL_STEP STEP
+		JOIN EMPLOYEE E ON (STEP.EMP_NO = E.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+		WHERE STEP.LINE_NO = #{lineNo} AND STEP_NUM != 0
+		ORDER BY STEP_NUM ASC
+	</select>
+	
+	<insert id="insertSaveMyLine" parameterType="ApprovalLine">
+		<selectKey keyProperty="lineNo" order="BEFORE" resultType="String">
+			SELECT SEQ_LINE_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO APPROVAL_LINE
+		VALUES(#{lineNo}, #{lineName}, #{lineSave}, #{empNo}, #{lineTurn})
+	</insert>
+	
+	<update id="updateApprovalDocument" parameterType="ApprovalDocument">
+		UPDATE APPROVAL_DOCUMENT
+		SET DOC_NAME = (SELECT ZBF_GET_DOC_NAME('now') from DUAL), DOC_STATUS = #{docStatus}, ENROLL_DATE = #{enrollDate}, DOC_URGENT = #{docUrgent}, DRAFT_OPINION = #{draftOpinion}
+		WHERE DOC_NO = #{docNo}
+	</update>
+</mapper> 

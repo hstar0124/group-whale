@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Settings"><!-- 별칭과는 다르다! -->
+
+
+	<!-- 부서 가져오는 쿼리 -->
+	<resultMap id="departmentsResult" type="Department">
+		<result column="DEPT_NO" property="deptNo" />
+		<result column="DEPT_NAME" property="deptName" />
+		<result column="PARENT_DEPT" property="parentDept" />
+		<result column="DEPTH" property="depth" />	
+	</resultMap>
+
+	<select id="selectDeptList" resultMap="departmentsResult">
+		SELECT DEPT_NO, DEPT_NAME, PARENT_DEPT, LEVEL AS DEPTH
+		FROM DEPARTMENT
+		START WITH DEPT_NO = 001
+		CONNECT BY PRIOR DEPT_NO=PARENT_DEPT
+	</select>
+	<!-- 부서 쿼리 끝 -->
+	
+	<!-- 부서 이름 유효성 체크 -->
+	<select id="selectDeptNameCheck" resultType="_int">
+		SELECT COUNT(*)
+		FROM DEPARTMENT
+		WHERE DEPT_NAME = #{ deptName }
+	</select>
+	
+	<!-- 부서 입력 -->
+	<insert id="insertDept" parameterType="Department">
+		INSERT INTO DEPARTMENT
+		VALUES (TRIM(TO_CHAR(SEQ_DEPARTMENT_NO.NEXTVAL, '000')), #{ deptName }, #{ parentDept })
+	</insert>
+	
+	<!-- 부서 삭제 -->
+	<delete id="deleteDept" parameterType="Department">
+		DELETE FROM DEPARTMENT
+		WHERE DEPT_NAME = #{ deptName }
+	</delete>
+	
+	<!-- 조직도 직원 리스트 -->
+	<select id="selectMemberList" resultMap="resultMemberListSet">
+		SELECT EMP_NO
+		     , EMP_NAME
+		     , EMP_EMAIL
+		     , PHONE
+		     , DECODE(EMP_STATUS, '1', '재직', '2', '휴직', '3', '퇴사') "STATUS"
+		     , DUTY_NO
+		     , DUTY_NAME
+		     , POSITION_NO
+		     , POSITION_NAME
+		     , DEPT_NO
+		     , DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN DUTY USING (DUTY_NO)
+		JOIN DEPARTMENT USING (DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		WHERE EMP_STATUS != '3'
+		ORDER BY POSITION_NO, DUTY_NO
+	</select>
+	
+	<resultMap id="resultPositionMap" type="PositionList">
+		<result column="POSITION_NO" property="positionNo" />
+		<result column="POSITION_NAME" property="positionName" />
+		<result column="COUNT" property="count"/>
+	</resultMap>
+	
+	
+	<select id="selectPositionList" resultMap="resultPositionMap">
+		SELECT POSITION_NO, POSITION_NAME, COUNT(EMP_NO) "COUNT"
+		FROM POSITION
+		LEFT JOIN EMPLOYEE USING (POSITION_NO)
+		GROUP BY (POSITION_NO, POSITION_NAME)
+		ORDER BY 1
+	</select>
+	
+	<resultMap id="resultDutyMap" type="DutyList">
+		<result column="DUTY_NO" property="dutyNo" />
+		<result column="DUTY_NAME" property="dutyName" />
+		<result column="COUNT" property="count"/>
+	</resultMap>
+	
+	<select id="selectDutyList" resultMap="resultDutyMap">
+		SELECT DUTY_NO, DUTY_NAME, COUNT(EMP_NO) "COUNT"
+		FROM DUTY
+		LEFT JOIN EMPLOYEE USING (DUTY_NO)
+		GROUP BY (DUTY_NO, DUTY_NAME)
+		ORDER BY 1
+	</select>
+	
+
+	<resultMap type="MemberDto" id="resultMemberListSet">
+		<result column="EMP_NO" property="empNo" />
+		<result column="EMP_NAME" property="empName" />
+		<result column="EMP_EMAIL" property="empEmail" />
+		<result column="PHONE" property="phone" />
+		<result column="STATUS" property="status" />
+		<result column="DUTY_NO" property="dutyNo" />
+		<result column="DUTY_NAME" property="dutyName" />
+		<result column="POSITION_NO" property="positionNo" />
+		<result column="POSITION_NAME" property="positionName" />
+		<result column="DEPT_NO" property="deptNo" />	
+		<result column="DEPT_NAME" property="deptName" />	
+	</resultMap>
+	
+	<!-- 부서에 속한 직원 리스트 -->
+	<select id="selectMemberListInDept" parameterType="MemberDto" resultMap="resultMemberListSet">
+		SELECT EMP_NO
+		     , EMP_NAME
+		     , EMP_EMAIL
+		     , PHONE
+		     , DECODE(EMP_STATUS, '1', '재직', '2', '휴직', '3', '퇴사') "STATUS"
+		     , DUTY_NO
+		     , DUTY_NAME 
+		     , POSITION_NO
+		     , POSITION_NAME
+		     , DEPT_NO
+		     , DEPT_NAME
+		FROM EMPLOYEE 
+		JOIN DUTY USING (DUTY_NO)
+		JOIN DEPARTMENT USING (DEPT_NO)
+		JOIN POSITION USING(POSITION_NO)
+		WHERE DEPT_NAME = #{ deptName }
+		AND EMP_NAME NOT LIKE '관리자'
+		ORDER BY POSITION_NO, DUTY_NO
+	</select>
+	
+	<select id="selectOneEmpNo" parameterType="MoveDepartment" resultType="java.lang.String">
+		SELECT EMP_NO
+		FROM EMPLOYEE
+		WHERE EMP_NAME = #{ empName }
+	</select>
+	
+	<select id="selectOneDeptNo" parameterType="MoveDepartment" resultType="java.lang.String">
+		SELECT DEPT_NO
+		FROM DEPARTMENT
+		WHERE DEPT_NAME = #{ deptName }
+	</select>
+	
+	<insert id="insertEmpDeptHistory" parameterType="MoveDepartment">
+		INSERT INTO DEPARTMENT_HISTORY 
+		VALUES (SEQ_DEPT_HISTORY_NO.NEXTVAL, #{ empNo }, #{ originDep }, #{ changeDep }, SYSDATE)
+	</insert>
+	
+	
+	<update id="updateEmpDept" parameterType="MoveDepartment">
+		UPDATE EMPLOYEE
+		SET 
+		DEPT_NO = #{ changeDep }
+		WHERE EMP_NO = #{ empNo }
+	</update>
+	
+	<select id="selectListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE EMP_STATUS = 1
+	</select>
+	
+	<select id="selectPositionListCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM POSITION
+	</select>
+	
+	<select id="selectPositionNo" parameterType="Position" resultType="_int">
+		SELECT COUNT(*)
+		FROM POSITION
+		WHERE POSITION_NO = #{ positionNo }
+	</select>
+	
+	<select id="selectPositionName" parameterType="Position" resultType="_int">
+		SELECT COUNT(*)
+		FROM POSITION
+		WHERE POSITION_NAME = #{ positionName }
+	</select>
+	
+	<insert id="insertPosition" parameterType="Position">
+		INSERT INTO POSITION
+		VALUES (#{ positionNo }, #{ positionName })
+	</insert>
+	
+	<delete id="deletePosition" parameterType="Position">
+		DELETE FROM POSITION
+		WHERE POSITION_NAME = #{ positionName }
+	</delete>
+	
+	<resultMap type="Duty" id="resultOnlyDutyMap">
+		<result column="DUTY_NO" property="dutyNo" />	
+		<result column="DUTY_NAME" property="dutyName" />	
+	</resultMap>
+	
+	<select id="selectDuty" parameterType="Duty" resultType="_int">
+		SELECT COUNT(*)
+		FROM DUTY
+		<where>
+			<if test="dutyNo != null">
+				AND DUTY_NO = #{ dutyNo }
+			</if>
+			<if test="dutyName != null">
+				AND DUTY_NAME = #{ dutyName }
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insertDuty" parameterType="Duty">
+		INSERT INTO DUTY
+		VALUES (#{ dutyNo }, #{ dutyName })
+	</insert>
+	
+	<delete id="deleteDuty" parameterType="Duty">
+		DELETE FROM DUTY
+		WHERE DUTY_NAME = #{ dutyName }
+	</delete>
+	
+	<resultMap type="CountMember" id="CountMemberSet">
+		<result column="ALL_EMP" property="allEmp" />	
+		<result column="LEAVE_EMP" property="leaveEmp" />
+		<result column="DELETE_EMP" property="deleteEmp" />	
+	</resultMap>
+	
+	<select id="selectMemberCount" resultMap="CountMemberSet">
+		SELECT COUNT(*) "ALL_EMP"
+		     , COUNT(DECODE(EMP_STATUS, '2', '1')) "LEAVE_EMP"
+		     , COUNT(DECODE(EMP_STATUS, '3', '1')) "DELETE_EMP"
+		FROM EMPLOYEE
+	</select>
+	
+	<resultMap type="Manager" id="selectManagerListResultMap">
+		<result column="MANAGER_NO" property="mangerNo"/>
+		<result column="EMP_NO" property="empNo"/>
+		<result column="EMP_NAME" property="empName"/>
+		<result column="DUTY_NO" property="dutyNo"/>
+		<result column="DUTY_NAME" property="dutyName"/>
+		<result column="POSITION_NO" property="positionNo"/>
+		<result column="POSITION_NAME" property="positionName"/>
+		<result column="DEPT_NO" property="deptNo"/>
+		<result column="DEPT_NAME" property="deptName"/>	
+	</resultMap>
+	
+	<select id="selectManagerList" resultMap="selectManagerListResultMap">
+		SELECT MANAGER_NO
+		     , E.EMP_NO
+		     , E.EMP_NAME
+		     , D.DUTY_NO
+		     , D.DUTY_NAME
+		     , P.POSITION_NO
+		     , P.POSITION_NAME
+		     , DE.DEPT_NO
+		     , DE.DEPT_NAME
+		FROM MANAGER M
+		JOIN EMPLOYEE E ON (E.EMP_NO = M.EMP_NO)
+		JOIN POSITION P ON (E.POSITION_NO = P.POSITION_NO)
+		JOIN DUTY D ON (E.DUTY_NO = D.DUTY_NO)
+		JOIN DEPARTMENT DE ON (E.DEPT_NO = DE.DEPT_NO)
+	</select>
+	
+	<select id="selectManagerCount" resultType="_int">
+		SELECT COUNT(*)
+		FROM MANAGER
+	</select>
+	
+	<insert id="insertManager" parameterType="Manager">
+		INSERT INTO MANAGER
+		VALUES (SEQ_MANAGER_NO.NEXTVAL, #{ empNo })
+	</insert>
+	
+	<delete id="deleteManager" parameterType="Manager">
+		DELETE FROM MANAGER
+		WHERE EMP_NO = #{ empNo }
+	</delete>
+	
+	<select id="selectMatching" parameterType="MemberDto" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE
+		WHERE EMP_NO = #{ empNo }
+		AND EMP_NAME = #{ empName }
+		AND PHONE = #{ phone }
+	</select>
+	
+		
+	<update id="deleteMember" parameterType="MemberDto">
+		UPDATE EMPLOYEE
+		SET 
+		EMP_STATUS = '3'
+		WHERE EMP_NO = #{ empNo }
+	</update>
+	
+	<select id="selectFolderName" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM COMPANY_DOCUMENT_BOX
+		WHERE CBOX_NAME = #{ folderName }   
+	</select>
+	
+	<insert id="insertcboxName" parameterType="CompanyDocumentBox">
+		INSERT INTO COMPANY_DOCUMENT_BOX
+		VALUES (SEQ_CBOX_NO.NEXTVAL, #{depth}, #{path}, #{cboxName}, #{parentNo}, #{childExist})
+	</insert>
+	
+	<select id="selectDelFolderCheck" parameterType="String" resultType="_int">
+		SELECT COUNT(*)
+		FROM DOCUMENT_FORM
+		WHERE CBOX_NO = #{cboxNo}
+	</select>
+	
+	<delete id="deleteCboxName" parameterType="String">
+		DELETE FROM COMPANY_DOCUMENT_BOX
+		WHERE CBOX_NO = #{cboxNo}
+	</delete>
+	
+	<insert id="insertDocumentForm" parameterType="DocumentForm">
+		INSERT INTO DOCUMENT_FORM(FORM_NO, CBOX_NO, FORM_NAME, FORM_CONTENT, FORM_TERM, FORM_DELEGATE, FORM_USE)
+		VALUES (SEQ_FORM_NO.NEXTVAL, #{cboxNo}, #{formName}, #{formContent}, #{formTerm}, #{formDelegate}, #{formUse})
+	</insert>
+	
+	<delete id="deleteDocumentForm" parameterType="String">
+		DELETE FROM DOCUMENT_FORM
+		WHERE FORM_NO = #{formNo}
+	</delete>
+	
+	<resultMap type="DocumentForm" id="documentFormListSet">
+		<id property="formNo" column="FORM_NO"/>
+		<result property="cboxNo" column="CBOX_NO"/>
+		<result property="cboxName" column="CBOX_NAME"/>
+		<result property="formName" column="FORM_NAME"/>
+		<result property="formContent" column="FORM_CONTENT"/>
+		<result property="formTerm" column="FORM_TERM"/>
+		<result property="formDelegate" column="FORM_DELEGATE"/>
+		<result property="formUse" column="FORM_USE"/>
+	</resultMap>
+	
+	<select id="selectOneDocumentForm" parameterType="String" resultMap="documentFormListSet">
+		SELECT FORM_NO, D.CBOX_NO, CBOX_NAME, FORM_NAME, FORM_CONTENT, FORM_TERM, FORM_DELEGATE, FORM_USE
+		FROM DOCUMENT_FORM D
+		JOIN COMPANY_DOCUMENT_BOX C ON (D.CBOX_NO = C.CBOX_NO)
+		WHERE FORM_NO = #{formNo} FOR UPDATE
+	</select>
+	<update id="updateBeforDocumentForm" parameterType="String">
+		UPDATE DOCUMENT_FORM
+		SET FORM_CONTENT = EMPTY_CLOB()
+		WHERE FORM_NO = #{formNo}
+	</update>
+	<update id="updateDocumentForm" parameterType="DocumentForm">
+		UPDATE DOCUMENT_FORM
+		SET FORM_NAME = #{formName}, FORM_CONTENT = #{formContent}, FORM_TERM = #{formTerm}, FORM_DELEGATE = #{formDelegate}, FORM_USE = #{formUse}
+		WHERE FORM_NO = #{formNo}
+	</update>
+	
+	<select id="selectMemberMatchingInDept" parameterType="java.lang.String" resultType="_int">
+		SELECT COUNT(*)
+		FROM EMPLOYEE E
+		JOIN DEPARTMENT D ON (E.DEPT_NO = D.DEPT_NO)
+		WHERE D.DEPT_NAME = #{ deptName }
+	</select>
+	
+	<update id="updatecboxName" parameterType="CompanyDocumentBox">
+		UPDATE COMPANY_DOCUMENT_BOX
+		SET CBOX_NAME = #{cboxName}
+		WHERE CBOX_NO = #{cboxNo}
+	</update>
+	
+	<select id="selectManagerCheck" parameterType="java.lang.String" resultType="_int">
+		SELECT COUNT(*)
+		FROM MANAGER
+		WHERE EMP_NO = #{ empNo }
+	</select>
+	
+</mapper>  

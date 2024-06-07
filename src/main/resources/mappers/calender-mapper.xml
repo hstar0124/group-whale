@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Calender"><!-- 별칭과는 다르다! => 아래들의 Member와는 다르다! -->
+	<!-- 일정 조회 -->
+	
+	<resultMap id="resultCalenderListMap" type="Calender">
+		<result column="CAL_NO" property="calNo"/>
+		<result column="EMP_NO" property="empNo"/>
+		<result column="ATTENDEE_NO" property="attendeeNo"/>
+		<result column="CAL_PLACE" property="calPlace"/>
+		<result column="CAL_KIND" property="calKind"/>
+		<result column="CAL_CATEGORY" property="calCategory"/>
+		<result column="CAL_START" property="calStart"/>
+		<result column="CAL_END" property="calEnd"/>
+		<result column="CAL_REPEAT" property="calRepeat"/>
+		<result column="CAL_TITLE" property="calTitle"/>
+		<result column="CAL_CONTENT" property="calContent"/>
+		<result column="CAL_ENROLL_DATE" property="calEnrollDate"/>
+		<result column="CAL_MODIFY_DATE" property="calModifyDate"/>
+		<result column="CAL_STATUS" property="calStatus"/>
+		<result column="CAL_ALERT" property="calAlert"/>
+		<result column="DUTY_NO" property="dutyNo"/>
+		<result column="DEPT_NO" property="deptNo"/>
+		
+		<collection property="calenderrepeat" resultMap="CalenderRepeat"></collection>
+		
+	</resultMap>
+	
+	
+	<resultMap id="CalenderRepeat" type="CalenderRepeat">
+		<result column="CAL_REPEAT_NO" property="calRepeatNo"/>
+		<result column="CYCLE" property="cycle"/>
+		<result column="HOWMANY" property="howmany"/>
+		<result column="CYCLE_WEEK" property="cycleWeek"/>
+		<result column="CYCLE_MONTY" property="cycleMonty"/>
+		<result column="END_OPTION" property="endOption"/>
+		<result column="END_OPTION_DAY" property="endOptionDay"/>
+		<result column="END_OPTION_COUNT" property="endOptionCount"/>
+</resultMap>
+ 
+	<!-- select, insert, update, delete를 각각의 태그로 제공하고 있다.  -->
+	<!-- 
+		id : 외부(DAO)에서 참조하기 위한 쿼리문의 이름
+		parameterType : 내부로 받을 객체(alias 사용 가능)
+		resultType :  쿼리 실행 후 나온 결과 타입
+		resultMap : 쿼리 실행 후 나온 결과(resultSet)을 밖으로 꺼내(자바 객체로)는 타입을 지정하는 속성 
+	 -->
+
+		<!-- 자기 것만 볼 수 있어야 -->	
+	 <select id="selectMyCalenderList" resultMap="resultCalenderListMap">
+		SELECT * 	
+		FROM CALENDER C
+		LEFT JOIN CALENDER_REPEAT CR ON (C.CAL_NO = CR.CAL_NO)
+		WHERE C.EMP_NO = #{empNo}
+		AND C.CAL_KIND = '내 일정' 
+		AND C.CAL_STATUS ='Y'
+	 </select>
+	 
+	 	<!-- 모두 볼 수 있어야 -->
+	 <select id="selectAllCalenderList" resultMap="resultCalenderListMap">
+	 	SELECT *
+		FROM CALENDER C
+		LEFT JOIN CALENDER_REPEAT CR ON (C.CAL_NO = CR.CAL_NO)
+		WHERE CAL_KIND = '전사 일정' 
+		AND CAL_STATUS ='Y'
+	 </select>
+
+		<!-- 임원들만 볼 수 있어야 임원의 기준은 duty_name이 팀장일때..  -->
+	 <select id="selectExCalenderList" resultMap="resultCalenderListMap">
+	    SELECT *
+		FROM CALENDER C
+		LEFT JOIN CALENDER_REPEAT CR ON (C.CAL_NO = CR.CAL_NO)
+        JOIN EMPLOYEE E ON (E.EMP_NO = C.EMP_NO)
+		WHERE CAL_KIND = '임원 일정' 
+		AND CAL_STATUS ='Y'
+	 </select>
+		
+		<!-- 같은 팀(부서만) 볼 수 있어야 같은 부서의 기준은 dept_name이 기준-->
+		<select id="selectMyTeamCalenderList" resultMap="resultCalenderListMap">
+		SELECT *
+		FROM CALENDER C
+		LEFT JOIN CALENDER_REPEAT CR ON (C.CAL_NO = CR.CAL_NO)
+        JOIN EMPLOYEE E ON (E.EMP_NO = C.EMP_NO)
+		WHERE CAL_KIND = '팀 일정' 
+		AND CAL_STATUS ='Y'
+        AND E.DEPT_NO = #{deptNo}
+		</select>
+	 
+	 <select id="selectOneCalender" resultMap="resultCalenderListMap">
+	 	SELECT * FROM CALENDER WHERE CAL_NO = #{calNo}
+	 </select>
+	 
+	 <insert id="insertCalender" parameterType="Calender">
+	 	INSERT INTO CALENDER
+	 	VALUES (SEQ_CAL_NO.NEXTVAL,#{empNo}, #{attendeeNo}, #{calPlace}, #{calKind}, #{calCategory}, #{calStart}, #{calEnd}, #{calRepeat}, #{calTitle}, #{calContent}, systimestamp, systimestamp, 'Y', '알람여부아직')
+	 </insert>
+	 
+	 <insert id="insertCalenderRepeat" parameterType="CalenderRepeat">
+	 	INSERT INTO CALENDER_REPEAT
+	 	VALUES (SEQ_CAL_REP_NO.NEXTVAL, SEQ_CAL_NO.CURRVAL, #{cycle}, #{howmany}, #{cycleWeek}, #{cycleMonty}, #{endOption}, #{endOptionDay}, #{endOptionCount})
+	 </insert>
+	 
+	 
+	 <update id="updateCalender" parameterType="Calender">
+	 	UPDATE CALENDER 
+	 	SET ATTENDEE_NO = #{ attendeeNo },
+	 		CAL_PLACE = #{ calPlace },
+	 		CAL_KIND = #{ calKind },
+	 		CAL_CATEGORY = #{ calCategory },
+	 		CAL_START = #{ calStart },
+	 		CAL_END = #{ calEnd },
+	 		<!-- CAL_REPEAT = #{ calRepeat} -->
+	 		CAL_TITLE = #{ calTitle},
+	 		CAL_CONTENT = #{ calContent},
+	 		CAL_MODIFY_DATE = SYSDATE
+	 		WHERE CAL_NO = #{ calNo }
+	 </update>
+	 
+	 <update id="deleteCalender" parameterType="Calender">
+	 	UPDATE CALENDER
+	 	SET CAL_STATUS = 'N'
+	 	WHERE CAL_NO = #{ calNo }
+	 </update>
+
+</mapper>  

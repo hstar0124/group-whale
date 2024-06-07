@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Sales">
+	<resultMap type="Client" id="clientResultSet">
+	     <id property="clientNo" column="CLIENT_NO"/>
+	     <result property="clientId" column="CLIENT_ID"/>
+	     <result property="clientPwd" column="CLIENT_PWD"/>
+	     <result property="clientEmail" column="CLIENT_EMAIL"/>
+	     <result property="clientPhone" column="CLIENT_PHONE"/>
+	     <result property="enrollDate" column="ENROLL_DATE"/>
+	     <result property="clientStatus" column="CLIENT_STATUS"/>
+	</resultMap>
+	<resultMap type="Request" id="requestResultSet">
+		<id property="requestNo" column="REQUEST_NO"/>
+		<result property="requestType" column="REQUEST_TYPE"/>
+		<result property="requestContent" column="REQUEST_CONTENT"/>
+		<result property="requestName" column="REQUEST_NAME"/>
+		<result property="requestPhone" column="REQUEST_PHONE"/>
+		<result property="requestEmail" column="REQUEST_EMAIL"/>
+		<result property="requestDate" column="REQUEST_DATE"/>
+		<result property="requestStatus" column="REQUEST_STATUS"/>
+	</resultMap>
+	<resultMap type="Payment" id="paymentResultSet">
+		<id property="paymentNo" column="PAYMENT_NO"/>
+		<result property="clientNo" column="CLIENT_NO"/>
+		<result property="productNo" column="PRODUCT_NO"/>
+		<result property="productName" column="PRODUCT_NAME"/>
+		<result property="productPrice" column="PRODUCT_PRICE"/>
+		<result property="paymentDate" column="PAYMENT_DATE"/>
+		<result property="paymentStatus" column="PAYMENT_STATUS"/>
+		<result property="note" column="NOTE"/>
+	</resultMap>
+	<resultMap type="DayMoney" id="dayMoneyResultSet">
+		<id property="day" column="DAY"/>
+		<result property="money" column="MONEY"/>
+	</resultMap>
+ 	
+ 	<!-- 암호화된 비밀번호 조회 -->
+ 	<select id="selectPwd" resultType="java.lang.String" parameterType="java.lang.String">
+ 		SELECT CLIENT_PWD
+ 		FROM CLIENT
+ 		WHERE CLIENT_ID = #{clientId}
+ 	</select>
+
+ 	<select id="loginCheck" resultMap="clientResultSet" parameterType="Client">
+ 		SELECT CLIENT_NO
+ 			 , CLIENT_ID
+ 			 , CLIENT_PWD
+ 			 , CLIENT_EMAIL
+ 			 , CLIENT_PHONE
+ 			 , ENROLL_DATE
+ 			 , CLIENT_STATUS
+ 		FROM CLIENT
+ 		WHERE CLIENT_ID = #{clientId}
+ 	</select>
+	
+	<insert id="insertClient" parameterType="Client">
+		INSERT INTO CLIENT
+		VALUES (SEQ_CLIENT_NO.NEXTVAL, #{clientId}, #{clientPwd}, #{clientEmail}, #{clientPhone}, DEFAULT, DEFAULT)
+	</insert>
+
+	<insert id="insertRequest" parameterType="Request">
+		INSERT INTO REQUEST
+		VALUES (SEQ_REQUEST_NO.NEXTVAL, #{requestType}, #{requestContent}, #{requestName}, #{requestPhone}, #{requestEmail}, SYSDATE, DEFAULT)
+	</insert>
+
+ 	<select id="selectRequestList" resultMap="requestResultSet" parameterType="Request">
+ 		SELECT REQUEST_NO
+ 			 , REQUEST_TYPE
+ 			 , REQUEST_CONTENT
+ 			 , REQUEST_NAME
+ 			 , REQUEST_PHONE
+ 			 , REQUEST_EMAIL
+ 			 , REQUEST_DATE
+ 			 , REQUEST_STATUS
+ 		FROM REQUEST
+ 		WHERE REQUEST_STATUS = 'Y'
+ 	</select>
+ 	
+ 	 <select id="selectClientId" resultMap="clientResultSet" parameterType="Client">
+ 		SELECT CLIENT_NO
+ 			 , CLIENT_ID
+ 			 , CLIENT_PWD
+ 			 , CLIENT_EMAIL
+ 			 , CLIENT_PHONE
+ 			 , ENROLL_DATE
+ 			 , CLIENT_STATUS
+ 		FROM CLIENT
+ 		WHERE CLIENT_ID = #{clientId}
+ 	</select>
+ 	
+ 	 <select id="selectRequestDetail" resultMap="requestResultSet" parameterType="Request">
+ 		SELECT REQUEST_NO
+		     , REQUEST_TYPE
+		     , REQUEST_CONTENT
+		     , REQUEST_NAME
+		     , REQUEST_PHONE
+		     , REQUEST_EMAIL
+		     , REQUEST_DATE
+		     , REQUEST_STATUS
+		FROM REQUEST
+		WHERE REQUEST_STATUS = 'Y'
+		AND REQUEST_NO = #{requestNo}
+ 	</select>
+
+	<insert id="insertPayment" parameterType="Payment">
+  		INSERT INTO PAYMENT 
+		VALUES(SEQ_PAYMENT_NO.NEXTVAL, #{clientNo}, #{productNo}, DEFAULT, DEFAULT, DEFAULT)
+ 	</insert> 
+ 	
+ 	 <select id="selectPaymentList" resultMap="paymentResultSet" parameterType="Payment">
+ 		SELECT P.PAYMENT_NO
+		     , PR.PRODUCT_NAME
+		     , PR.PRODUCT_PRICE
+		     , P.PAYMENT_DATE
+		     , P.NOTE
+		FROM PAYMENT P 
+		JOIN PRODUCT PR ON(PR.PRODUCT_NO = P.PRODUCT_NO)
+		WHERE P.PAYMENT_DATE >= #{startDay}
+		AND #{endDay} >= TO_CHAR(P.PAYMENT_DATE,'RRRR-MM-DD')
+		ORDER BY P.PAYMENT_DATE 
+ 	</select>
+ 	
+ 	<select id="selectDayMoney" resultMap="dayMoneyResultSet" parameterType="DayMoney">
+	 	SELECT TO_CHAR(P.PAYMENT_DATE,'RRRR-MM-DD') AS DAY
+		     , SUM(PR.PRODUCT_PRICE) AS MONEY
+		FROM PAYMENT P
+		JOIN PRODUCT PR ON(PR.PRODUCT_NO = P.PRODUCT_NO)
+		GROUP BY TO_CHAR(P.PAYMENT_DATE,'RRRR-MM-DD')
+		HAVING TO_CHAR(P.PAYMENT_DATE,'RRRR-MM-DD') >= #{startDay}
+		AND #{endDay} >= TO_CHAR(P.PAYMENT_DATE,'RRRR-MM-DD')
+		ORDER BY 1 
+ 	</select>
+ 	
+ 	<update id="deleteRequest" parameterType="Request">
+		UPDATE REQUEST 
+		SET REQUEST_STATUS = 'N'
+		WHERE REQUEST_NO = #{requestNo}
+	</update>
+
+</mapper>  
