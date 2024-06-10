@@ -17,17 +17,35 @@
 
 ![image](https://github.com/hstar0124/group-whale/assets/57317290/50a39aea-0910-45bd-b208-824645e3682f)
 
+
+## 업무분석
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/c73beb37-8c0e-4fdf-9f5d-f1c647050474)
+
+
+## 개발 스텍
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/3fd285fe-c04a-4324-bee8-d96931feb7b2)
+
+
+## DB 모델링
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/7688444c-8e1d-4bd4-be35-2e12da145562)
+
+
 ## 주요기능, 프로세스
 
 ![image](https://github.com/hstar0124/group-whale/assets/57317290/712b711c-9912-4394-9ff9-e041b1ea8cc4)
 
-### 전자결재
 
-![image](https://github.com/hstar0124/group-whale/assets/57317290/a261ceb5-5b2f-4e38-bcd4-74c54fd78296)
+## 업무도식화
 
-### 게시판
+![image](https://github.com/hstar0124/group-whale/assets/57317290/1cf9938f-80b9-48d7-be15-65129f4e6293)
 
-![image](https://github.com/hstar0124/group-whale/assets/57317290/aa47ba50-bed5-4d91-ad31-6eebdc5487a0)
+![image](https://github.com/hstar0124/group-whale/assets/57317290/a653731e-4bfe-412f-ab29-63b5a43dde1a)
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/0d6f9388-a5be-4702-9b7e-7c0f32c82d6b)
+
 
 ## 담당기능
 - 로그인/회원가입
@@ -36,10 +54,17 @@
 - 날씨 크롤링
 - DB 설계 및 관리
 
-## 개발 스텍
+## 구현기능
+![image](https://github.com/hstar0124/group-whale/assets/57317290/7e823fb6-f344-486a-89f8-17ea9948084e)
 
-![image](https://github.com/hstar0124/group-whale/assets/57317290/3fd285fe-c04a-4324-bee8-d96931feb7b2)
+![image](https://github.com/hstar0124/group-whale/assets/57317290/eaf7e8a5-c8b4-4759-af84-027625e09c8d)
 
-## DB 모델링
+![image](https://github.com/hstar0124/group-whale/assets/57317290/13ac3fc4-1e68-4d9f-8905-dff5cd251ab2)
 
-![image](https://github.com/hstar0124/group-whale/assets/57317290/7688444c-8e1d-4bd4-be35-2e12da145562)
+![image](https://github.com/hstar0124/group-whale/assets/57317290/c545da07-54e5-4534-a86a-fdb2535709e5)
+
+![image](https://github.com/hstar0124/group-whale/assets/57317290/0b894ea8-99b1-4619-bac1-f16dc7db7f1e)
+
+
+
+
